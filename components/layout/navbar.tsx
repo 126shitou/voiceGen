@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Mic } from 'lucide-react';
 import { LanguageSelector } from '@/components/ui/language-selector';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useLanguage } from '@/lib/language-context';
 import { useAuth } from '@/lib/auth-context';
 import { MobileMenu } from './mobile-menu';
@@ -49,6 +50,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <LanguageSelector />
           
           {user ? (
