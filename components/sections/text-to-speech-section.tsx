@@ -210,7 +210,23 @@ export function TextToSpeechSection() {
   };
 
   const downloadAudio = () => {
-    // In a real implementation, this would download the actual audio file
+    if (!audioUrl) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'No audio available to download.',
+      });
+      return;
+    }
+
+    // Create a temporary anchor element
+    const a = document.createElement('a');
+    a.href = audioUrl;
+    a.download = `voice-gen-${new Date().getTime()}.mp3`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
     toast({
       title: 'Download started',
       description: 'Your audio file is being downloaded.',
@@ -360,11 +376,30 @@ export function TextToSpeechSection() {
                         size="icon"
                         variant="ghost"
                         onClick={() => {
-                          // In a real app, this would copy a link to the generated audio
-                          toast({
-                            title: 'Success',
-                            description: 'Audio link copied to clipboard',
-                          });
+                          if (!audioUrl) {
+                            toast({
+                              variant: 'destructive',
+                              title: 'Error',
+                              description: 'No audio link available to copy.',
+                            });
+                            return;
+                          }
+                          
+                          // Copy the audio URL to clipboard
+                          navigator.clipboard.writeText(audioUrl)
+                            .then(() => {
+                              toast({
+                                title: 'Success',
+                                description: 'Audio link copied to clipboard',
+                              });
+                            })
+                            .catch(() => {
+                              toast({
+                                variant: 'destructive',
+                                title: 'Error',
+                                description: 'Failed to copy link to clipboard',
+                              });
+                            });
                         }}
                       >
                         <CheckCircle className="h-4 w-4" />
