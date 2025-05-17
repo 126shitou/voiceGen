@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Mic } from 'lucide-react';
 import { LanguageSelector } from '@/components/ui/language-selector';
@@ -10,9 +11,11 @@ import { useLanguage } from '@/lib/language-context';
 import { MobileMenu } from './mobile-menu';
 import { UserMenu } from './user-menu';
 import { useSession, signIn } from 'next-auth/react'
+
 export function Navbar() {
   const { t } = useLanguage();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -61,7 +64,7 @@ export function Navbar() {
           ) : (
             <>
               <Button
-                onClick={() => { signIn('github') }}
+                onClick={() => { router.push('/auth/login') }}
                 variant="ghost"
                 className="hidden md:inline-flex"
               >
