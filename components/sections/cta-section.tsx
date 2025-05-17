@@ -2,13 +2,13 @@
 
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/language-context';
-import { useAuth } from '@/lib/auth-context';
+import { useSession, signIn } from 'next-auth/react';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 export function CTASection() {
   const { t } = useLanguage();
-  const { user, signInWithGoogle } = useAuth();
+  const { data: session } = useSession();
 
   return (
     <section className="py-20 relative overflow-hidden">
@@ -34,7 +34,7 @@ export function CTASection() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {user ? (
+            {session?.user ? (
               <Link href="#tts-section">
                 <Button size="lg" className="bg-white text-primary hover:bg-white/90">
                   <Sparkles className="mr-2 h-4 w-4" />
@@ -45,7 +45,7 @@ export function CTASection() {
               <Button 
                 size="lg" 
                 className="bg-white text-primary hover:bg-white/90"
-                onClick={signInWithGoogle}
+                onClick={() => signIn('github')}
               >
                 <Sparkles className="mr-2 h-4 w-4" />
                 {t('cta.button')}

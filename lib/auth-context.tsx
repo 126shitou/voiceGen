@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { signIn } from "next-auth/react"
 
 // Mock user type - this would normally come from your auth provider
 interface User {
@@ -21,8 +22,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  signInWithGoogle: async () => {},
-  signOut: async () => {},
+  signInWithGoogle: async () => { },
+  signOut: async () => { },
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -42,7 +43,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Mock Google sign in
   const signInWithGoogle = async () => {
+    console.log("signIn+++");
+    
     setLoading(true);
+    signIn('google')
     try {
       // In a real implementation, this would call the actual Google OAuth API
       // For demo purposes, we'll create a mock user
@@ -52,10 +56,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         displayName: 'Demo User',
         photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo',
       };
-      
+
       setUser(mockUser);
       localStorage.setItem('user', JSON.stringify(mockUser));
-      
+
       toast({
         title: 'Signed in successfully',
         description: 'Welcome to VoiceWave!',
@@ -78,7 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setUser(null);
       localStorage.removeItem('user');
-      
+
       toast({
         title: 'Signed out successfully',
         description: 'You have been signed out.',

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Play, Headphones, Star, Lock } from 'lucide-react';
-import { useAuth } from '@/lib/auth-context';
+import { useSession } from 'next-auth/react';
 
 // Voice models data
 const allVoices = [
@@ -49,7 +49,8 @@ type Voice = {
 
 export default function VoicesPage() {
   const { language, t } = useLanguage();
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [activeTab, setActiveTab] = useState('all');
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   const [voices, setVoices] = useState<Voice[]>([]);

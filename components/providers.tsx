@@ -2,16 +2,16 @@
 
 import { ThemeProvider } from 'next-themes';
 import { LanguageProvider } from '@/lib/language-context';
-import { AuthProvider } from '@/lib/auth-context';
+import { SessionProvider } from "next-auth/react"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-      <LanguageProvider>
-        <AuthProvider>
+    <SessionProvider>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <LanguageProvider>
           {children}
-        </AuthProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </SessionProvider>
   );
 }

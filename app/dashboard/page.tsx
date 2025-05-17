@@ -2,22 +2,24 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, Clock, FileText, VolumeX } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { data: session, status } = useSession();
+  const loading = status === 'loading';
+  const user = session?.user;
   const router = useRouter();
   const { t } = useLanguage();
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!loading && !user) {
+    if (status === 'unauthenticated') {
       router.push('/');
     }
-  }, [user, loading, router]);
+  }, [status, router]);
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-[60vh]">Loading...</div>;

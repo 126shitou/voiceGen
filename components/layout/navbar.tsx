@@ -7,28 +7,26 @@ import { Mic } from 'lucide-react';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useLanguage } from '@/lib/language-context';
-import { useAuth } from '@/lib/auth-context';
 import { MobileMenu } from './mobile-menu';
 import { UserMenu } from './user-menu';
-
+import { useSession, signIn } from 'next-auth/react'
 export function Navbar() {
   const { t } = useLanguage();
-  const { user, signInWithGoogle } = useAuth();
+  const { data: session, status } = useSession();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-      scrolled ? 'bg-background/95 backdrop-blur-md border-b' : 'bg-transparent'
-    }`}>
+    <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled ? 'bg-background/95 backdrop-blur-md border-b' : 'bg-transparent'
+      }`}>
       <div className="w-full px-4 md:px-8 max-w-[1920px] mx-auto flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
@@ -52,28 +50,27 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <LanguageSelector />
-          
-          {user ? (
-            <UserMenu user={user} />
+
+          {session?.user ? (
+            <UserMenu user={{
+              uid: session.user.id || session.user.email || '',
+              email: session.user.email || '',
+              displayName: session.user.name || '',
+              photoURL: session.user.image || ''
+            }} />
           ) : (
             <>
               <Button
-                onClick={signInWithGoogle}
+                onClick={() => { signIn('github') }}
                 variant="ghost"
                 className="hidden md:inline-flex"
               >
                 {t('nav.login')}
               </Button>
-              <Button
-                onClick={signInWithGoogle}
-                variant="default"
-                className="hidden md:inline-flex bg-primary hover:bg-primary/90"
-              >
-                {t('nav.signup')}
-              </Button>
+
             </>
           )}
-          
+
           <MobileMenu />
         </div>
       </div>

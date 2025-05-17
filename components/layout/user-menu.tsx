@@ -10,17 +10,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, LogOut, Settings, CreditCard } from 'lucide-react';
+import { User as UserIcon, LogOut, Settings, CreditCard } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
-import { useAuth } from '@/lib/auth-context';
+import { signOut } from 'next-auth/react';
 
-type UserMenuProps = {
-  user: any;
-};
+interface UserMenuProps {
+  user: {
+    uid: string;
+    email: string | null | undefined;
+    displayName: string | null | undefined;
+    photoURL: string | null | undefined;
+  };
+}
 
 export function UserMenu({ user }: UserMenuProps) {
   const { t } = useLanguage();
-  const { signOut } = useAuth();
   const [open, setOpen] = useState(false);
 
   return (
@@ -28,9 +32,9 @@ export function UserMenu({ user }: UserMenuProps) {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full focus:outline-none">
           <Avatar className="h-8 w-8 border border-border">
-            <AvatarImage src={user.photoURL} alt={user.displayName} />
+            <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || undefined} />
             <AvatarFallback className="bg-primary/10 text-primary">
-              {user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'}
+              {user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
         </button>
@@ -38,10 +42,10 @@ export function UserMenu({ user }: UserMenuProps) {
       <DropdownMenuContent className="w-56" align="end">
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
-            {user.displayName && (
+            {user?.displayName && (
               <p className="font-medium">{user.displayName}</p>
             )}
-            {user.email && (
+            {user?.email && (
               <p className="text-sm text-muted-foreground truncate w-40">
                 {user.email}
               </p>
@@ -51,7 +55,7 @@ export function UserMenu({ user }: UserMenuProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/dashboard" className="cursor-pointer flex w-full items-center">
-            <User className="mr-2 h-4 w-4" />
+            <UserIcon className="mr-2 h-4 w-4" />
             <span>{t('userMenu.dashboard')}</span>
           </Link>
         </DropdownMenuItem>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useLanguage } from '@/lib/language-context';
-import { useAuth } from '@/lib/auth-context';
+import { useSession, signIn } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -11,7 +11,8 @@ import { Check } from 'lucide-react';
 
 export default function PricingPage() {
   const { t, language } = useLanguage();
-  const { user, signInWithGoogle } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
 
   // Currency symbols by language

@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
-import { useAuth } from '@/lib/auth-context';
+import { useSession, signIn } from 'next-auth/react';
 
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const { t } = useLanguage();
-  const { user, signInWithGoogle } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -59,7 +60,7 @@ export function MobileMenu() {
             <>
               <Button 
                 onClick={() => {
-                  signInWithGoogle();
+                  signIn('google');
                   setOpen(false);
                 }}
                 variant="ghost" 
@@ -69,7 +70,7 @@ export function MobileMenu() {
               </Button>
               <Button
                 onClick={() => {
-                  signInWithGoogle();
+                  signIn('google');
                   setOpen(false);
                 }}
                 className="bg-primary hover:bg-primary/90 mt-2"

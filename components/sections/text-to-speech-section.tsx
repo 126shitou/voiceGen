@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useLanguage } from '@/lib/language-context';
-import { useAuth } from '@/lib/auth-context';
+import { useSession } from 'next-auth/react';
 import { CheckCircle, Download, Pause, Play, RefreshCw, Volume2, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -47,7 +47,8 @@ const voices = [
 
 export function TextToSpeechSection() {
   const { t, language } = useLanguage();
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const { toast } = useToast();
   const [text, setText] = useState('');
   const [voice, setVoice] = useState(voices[0]?.id || '');
