@@ -198,9 +198,6 @@ export const translations = {
       alreadyHaveAccount: '已有账号？',
       login: '登录',
       byRegistering: '注册即表示您同意我们的',
-
-
-      login: '登录',
       signup: '注册',
       dashboard: '控制台'
     },
