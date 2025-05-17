@@ -138,6 +138,28 @@ export const translations = {
       },
       saveWithYearly: 'Save 20% with yearly billing'
     },
+    payment: {
+      success: {
+        title: 'Payment Successful!',
+        subtitle: 'Thank you for your purchase. Your subscription is now active.',
+        processing: 'Processing your payment...',
+        plan: 'Plan',
+        amount: 'Amount',
+        date: 'Date',
+        account: 'Account',
+        receiptInfo: 'A receipt has been sent to your email address. If you have any questions or need assistance, please contact our support team.',
+        dashboard: 'Go to Dashboard',
+        home: 'Return to Home'
+      },
+      canceled: {
+        title: 'Payment Canceled',
+        subtitle: 'Your payment process was not completed.',
+        reason: 'Reason for cancellation:',
+        noCharges: 'No charges have been made to your payment method. You can try again or contact our support team if you need assistance.',
+        tryAgain: 'Try Again',
+        home: 'Return to Home'
+      }
+    },
     cta: {
       title: 'Ready to transform your text?',
       subtitle: 'Start creating natural voiceovers today.',
@@ -301,6 +323,28 @@ export const translations = {
         cta: '联系销售'
       },
       saveWithYearly: '年付可节省20%'
+    },
+    payment: {
+      success: {
+        title: '支付成功！',
+        subtitle: '感谢您的购买。您的订阅现已激活。',
+        processing: '正在处理您的支付...',
+        plan: '套餐',
+        amount: '金额',
+        date: '日期',
+        account: '账户',
+        receiptInfo: '收据已发送至您的邮箱。如有任何问题或需要帮助，请联系我们的支持团队。',
+        dashboard: '前往控制台',
+        home: '返回首页'
+      },
+      canceled: {
+        title: '支付已取消',
+        subtitle: '您的支付流程未完成。',
+        reason: '取消原因：',
+        noCharges: '您的支付方式未被收取任何费用。您可以重试或联系我们的支持团队获取帮助。',
+        tryAgain: '重新尝试',
+        home: '返回首页'
+      }
     },
     cta: {
       title: '准备好转换您的文本了吗？',
@@ -468,6 +512,28 @@ export const translations = {
       },
       saveWithYearly: '年額で20%お得'
     },
+    payment: {
+      success: {
+        title: '支払い成功！',
+        subtitle: 'ご購入ありがとうございます。サブスクリプションが有効になりました。',
+        processing: '支払い処理中...',
+        plan: 'プラン',
+        amount: '金額',
+        date: '日付',
+        account: 'アカウント',
+        receiptInfo: '領収書がメールアドレスに送信されました。ご質問やサポートが必要な場合は、サポートチームにお問い合わせください。',
+        dashboard: 'ダッシュボードへ',
+        home: 'ホームに戻る'
+      },
+      canceled: {
+        title: '支払いキャンセル',
+        subtitle: '支払い処理が完了しませんでした。',
+        reason: 'キャンセルの理由：',
+        noCharges: '支払い方法に請求は発生していません。もう一度お試しいただくか、サポートチームにお問い合わせください。',
+        tryAgain: '再試行',
+        home: 'ホームに戻る'
+      }
+    },
     cta: {
       title: 'テキストを変換する準備はできましたか？',
       subtitle: '今日から自然なナレーションを作成しましょう。',
@@ -631,6 +697,28 @@ export const translations = {
         cta: '영업팀 문의'
       },
       saveWithYearly: '연간 결제로 20% 절약'
+    },
+    payment: {
+      success: {
+        title: '결제 성공!',
+        subtitle: '구매해 주셔서 감사합니다. 구독이 활성화되었습니다.',
+        processing: '결제 처리 중...',
+        plan: '플랜',
+        amount: '금액',
+        date: '날짜',
+        account: '계정',
+        receiptInfo: '영수증이 이메일 주소로 전송되었습니다. 질문이나 도움이 필요하시면 지원 팀에 문의하세요.',
+        dashboard: '대시보드로 이동',
+        home: '홈으로 돌아가기'
+      },
+      canceled: {
+        title: '결제 취소됨',
+        subtitle: '결제 프로세스가 완료되지 않았습니다.',
+        reason: '취소 이유:',
+        noCharges: '결제 수단에 요금이 청구되지 않았습니다. 다시 시도하거나 도움이 필요하시면 지원 팀에 문의하세요.',
+        tryAgain: '다시 시도',
+        home: '홈으로 돌아가기'
+      }
     },
     cta: {
       title: '텍스트를 변환할 준비가 되셨나요?',

@@ -21,11 +21,10 @@ const authOptions: AuthOptions = {
       },
     callbacks: {
         async signIn({ user, account, profile }) {
-            console.log("sign In callback++");
             return true
         },
         async jwt({ token, account, user }) {
-            console.log("jwt callback++");
+
             
             // Add provider and user ID to the token
             if (account) {

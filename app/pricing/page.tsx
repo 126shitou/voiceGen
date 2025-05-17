@@ -8,11 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Check } from 'lucide-react';
+import getStripe from '@/lib/stripe';
 
 export default function PricingPage() {
   const { t, language } = useLanguage();
-  const { data: session } = useSession();
-  const user = session?.user;
+  const { data: session, status } = useSession();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
 
   // Currency symbols by language
@@ -31,11 +31,35 @@ export default function PricingPage() {
     ko: 1300,   // KRW
   };
 
+  const payPro = async () => {
+    let userId = session?.user.id
+    const stripe = await getStripe()
+    const response = await fetch("/api/stripe", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/josn"
+      },
+      body: JSON.stringify({ userId })
+    })
+
+
+    if (response.status === 500) {
+      return
+    }
+
+    const data = await response.json()
+    const result = stripe.redirectToCheckout({ sessionId: data.id })
+
+    if (result.error) {
+      console.log(result.error.message)
+    }
+  }
+
   const getPrice = (basePrice: number): string => {
     const symbol = currencySymbols[language] || '$';
     const multiplier = priceMultipliers[language] || 1;
     const price = basePrice * multiplier;
-    
+
     // Format based on currency
     if (language === 'ja' || language === 'ko') {
       return `${symbol}${Math.round(price)}`;
@@ -49,7 +73,7 @@ export default function PricingPage() {
   // Calculate pro price with yearly discount if applicable
   const getProPrice = () => {
     const basePrice = 12;
-    const finalPrice = billingPeriod === 'yearly' ? basePrice * 0.8 : basePrice;
+    const finalPrice = Number((billingPeriod === 'yearly' ? basePrice * 0.8 : basePrice).toFixed(1));
     return getPrice(finalPrice);
   };
 
@@ -58,7 +82,7 @@ export default function PricingPage() {
       <div className="text-center max-w-3xl mx-auto mb-12">
         <h1 className="text-4xl font-bold mb-4">{t('pricing.title')}</h1>
         <p className="text-lg text-muted-foreground">{t('pricing.subtitle')}</p>
-        
+
         <div className="flex items-center justify-center space-x-4 mt-8">
           <Label htmlFor="billing-period" className={billingPeriod === 'monthly' ? 'font-medium' : 'text-muted-foreground'}>
             {t('pricing.monthly')}
@@ -72,14 +96,14 @@ export default function PricingPage() {
             {t('pricing.yearly')}
           </Label>
         </div>
-        
+
         {billingPeriod === 'yearly' && (
           <div className="mt-2 inline-block bg-primary/10 text-primary text-sm px-3 py-1 rounded-full">
             {t('pricing.saveWithYearly')}
           </div>
         )}
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {/* Free Plan */}
         <Card className="border border-border/50 hover-lift">
@@ -104,7 +128,7 @@ export default function PricingPage() {
             </Button>
           </CardFooter>
         </Card>
-        
+
         {/* Pro Plan */}
         <Card className="border-primary relative purple-glow hover-lift">
           <div className="absolute top-0 right-0 left-0 h-2 bg-primary rounded-t-lg"></div>
@@ -127,35 +151,12 @@ export default function PricingPage() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button className="w-full bg-primary hover:bg-primary/90">
+            <Button onClick={payPro} className="w-full bg-primary hover:bg-primary/90">
               {t('pricing.pro.cta')}
             </Button>
           </CardFooter>
         </Card>
-        
-        {/* Enterprise Plan */}
-        <Card className="border border-border/50 hover-lift">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">{t('pricing.enterprise.title')}</CardTitle>
-            <div className="mt-4 text-4xl font-bold">{t('pricing.enterprise.price')}</div>
-            <CardDescription className="mt-2">{t('pricing.enterprise.description')}</CardDescription>
-          </CardHeader>
-          <CardContent className="mt-2">
-            <ul className="space-y-3">
-              {t('pricing.enterprise.features').split('\n').map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <Check className="mr-2 h-5 w-5 text-primary flex-shrink-0" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full">
-              {t('pricing.enterprise.cta')}
-            </Button>
-          </CardFooter>
-        </Card>
+
       </div>
     </div>
   );
