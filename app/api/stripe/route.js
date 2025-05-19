@@ -1,17 +1,12 @@
 import Stripe from 'stripe'
 
-import { NextResponse } from 'next/server'
-
-export const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY)
+export const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY || "")
 
 export const POST = async (req, res) => {
 
     if (req.method === "POST") {
-
         try {
             const { userId } = await req.json()
-            console.log("userId++++", userId);
-
 
             const params = {
                 submit_type: 'pay',

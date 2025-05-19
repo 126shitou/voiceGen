@@ -1,5 +1,8 @@
 import NextAuth, { AuthOptions } from "next-auth"
 import GithubProvider from "next-auth/providers/github"
+import { connectToDB } from "@/mongodb/database"
+import User from "@/models/User"
+
 
 const authOptions: AuthOptions = {
     providers: [
@@ -18,15 +21,33 @@ const authOptions: AuthOptions = {
     pages: {
         signIn: "/auth/login",
         error: "/auth/error",
-      },
+    },
     callbacks: {
         async signIn({ user, account, profile }) {
+            console.log("user+++", user, account, profile);
+            await connectToDB()
+
+            const dbUser = await User.findOne({ email: user.email });
+            if (!dbUser) {
+                console.log("InsertUser nox exist!");
+
+                const InsertUser = new User({
+                    thirdPartId: user.id,
+                    name: user.name,
+                    email: user.email,
+                    image: user.image,
+                    Balance: 0,
+                    CreateDate: new Date().toLocaleString()
+                });
+                await InsertUser.save()
+                console.log("InsertUser insert success!");
+                return InsertUser
+            }
+
             return true
         },
         async jwt({ token, account, user }) {
 
-            
-            // Add provider and user ID to the token
             if (account) {
                 token.provider = account.provider
             }
@@ -36,13 +57,10 @@ const authOptions: AuthOptions = {
             return token
         },
         async session({ session, token }) {
-            console.log("session callback++");
+            const sessionUser = await User.findOne({ email: session.user.email });
+            session.user.id = sessionUser._id.toString();
 
-            // Add provider and ID to the session user
-            if (session.user) {
-                session.user.provider = token.provider as string
-                session.user.id = token.id as string
-            }
+            session.user = { ...session.user, ...sessionUser._doc }
             return session
         },
     }
