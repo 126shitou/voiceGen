@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 export default function PricingPage() {
   const { t, language } = useLanguage();
   const { data: session, status } = useSession();
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'basic' | 'pro'>('free');
   const router = useRouter()
 
@@ -80,11 +80,10 @@ export default function PricingPage() {
     }
   };
 
-  // Calculate pro price with yearly discount if applicable
+  // Get pro price
   const getProPrice = () => {
     const basePrice = 12;
-    const finalPrice = Number((billingPeriod === 'yearly' ? basePrice * 0.8 : basePrice).toFixed(1));
-    return getPrice(finalPrice);
+    return getPrice(basePrice);
   };
 
   return (
@@ -93,25 +92,7 @@ export default function PricingPage() {
         <h1 className="text-4xl font-bold mb-4">{t('pricing.title')}</h1>
         <p className="text-lg text-muted-foreground">{t('pricing.subtitle')}</p>
 
-        <div className="flex items-center justify-center space-x-4 mt-8">
-          <Label htmlFor="billing-period" className={billingPeriod === 'monthly' ? 'font-medium' : 'text-muted-foreground'}>
-            {t('pricing.monthly')}
-          </Label>
-          <Switch
-            id="billing-period"
-            checked={billingPeriod === 'yearly'}
-            onCheckedChange={(checked) => setBillingPeriod(checked ? 'yearly' : 'monthly')}
-          />
-          <Label htmlFor="billing-period" className={billingPeriod === 'yearly' ? 'font-medium' : 'text-muted-foreground'}>
-            {t('pricing.yearly')}
-          </Label>
-        </div>
 
-        {billingPeriod === 'yearly' && (
-          <div className="mt-2 inline-block bg-primary/10 text-primary text-sm px-3 py-1 rounded-full">
-            {t('pricing.saveWithYearly')}
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -165,8 +146,7 @@ export default function PricingPage() {
             </div>
             <CardTitle className="text-2xl">{t('pricing.basic.title')}</CardTitle>
             <div className="mt-4 flex items-baseline justify-center">
-              <span className="text-4xl font-bold">{getPrice(billingPeriod === 'yearly' ? 4 : 5)}</span>
-              <span className="text-muted-foreground ml-2">{t('pricing.basic.period')}</span>
+              <span className="text-4xl font-bold">{getPrice(5)}</span>
             </div>
             <CardDescription className="mt-2">{t('pricing.basic.description')}</CardDescription>
           </CardHeader>

@@ -93,9 +93,9 @@ export default function VoicesPage() {
   return (
     <div className="py-16 container mx-auto px-4">
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <h1 className="text-4xl font-bold mb-4">Voice Models</h1>
+        <h1 className="text-4xl font-bold mb-4">{t('voices.pageTitle')}</h1>
         <p className="text-lg text-muted-foreground">
-          Listen to our natural-sounding voice models in different languages and accents
+          {t('voices.pageDescription')}
         </p>
       </div>
       
@@ -146,7 +146,7 @@ export default function VoicesPage() {
                 {voice.premium && (
                   <div className="bg-primary/10 text-primary text-xs font-medium rounded-full px-2 py-1 flex items-center">
                     <Star className="h-3 w-3 mr-1" fill="currentColor" />
-                    Premium
+                    {t('voices.premium')}
                   </div>
                 )}
               </div>
@@ -158,14 +158,14 @@ export default function VoicesPage() {
                   {voice.rating}
                 </span>
                 <span className="mx-2">•</span>
-                <span className="capitalize">{voice.gender}</span>
+                <span>{voice.gender === 'male' ? t('voices.male') : t('voices.female')}</span>
               </CardDescription>
             </CardHeader>
             
             <CardContent>
               <div className="flex items-center text-sm text-muted-foreground">
                 <Headphones className="h-4 w-4 mr-1" />
-                Demo available
+                {t('voices.demoAvailable')}
               </div>
             </CardContent>
             
@@ -173,7 +173,7 @@ export default function VoicesPage() {
               {voice.premium && !user ? (
                 <Button variant="outline" className="w-full">
                   <Lock className="h-4 w-4 mr-2" />
-                  Unlock Premium
+                  {t('voices.unlockPremium')}
                 </Button>
               ) : (
                 <Button 
@@ -193,12 +193,12 @@ export default function VoicesPage() {
                           ></div>
                         ))}
                       </div>
-                      Playing...
+                      {t('voices.playing')}
                     </>
                   ) : (
                     <>
                       <Play className="h-4 w-4 mr-2" />
-                      Play Sample
+                      {t('voices.playSample')}
                     </>
                   )}
                 </Button>

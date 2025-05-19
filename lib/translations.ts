@@ -4,9 +4,28 @@ export const translations = {
       home: 'Home',
       pricing: 'Pricing',
       voices: 'Voices',
+      tts: 'Text to Speech',
       login: 'Log in',
-      signup: 'Sign up',
       dashboard: 'Dashboard'
+    },
+    dashboard: {
+      title: 'Dashboard',
+      subtitle: 'Manage your voice conversions and account',
+      charactersUsed: 'Characters Used',
+      charactersUsedDesc: 'For the current billing period',
+      audioGenerated: 'Audio Generated',
+      audioGeneratedDesc: 'This month',
+      savedVoices: 'Saved Voices',
+      customVoice: 'custom voice',
+      currentPlan: 'Current Plan',
+      renewsOn: 'Renews on',
+      recentConversions: 'Recent Conversions',
+      recentConversionsDesc: 'Your recent text-to-speech conversions will appear here',
+      speechSample: 'Speech Sample',
+      hoursAgo: 'hours ago',
+      yesterday: 'Yesterday',
+      daysAgo: 'days ago',
+      loading: 'Loading...'
     },
     auth: {
       welcomeBack: 'Welcome back',
@@ -51,6 +70,10 @@ export const translations = {
     },
     tts: {
       title: 'Text to Speech',
+      pageTitle: 'Advanced Text to Speech Conversion',
+      pageDescription: 'Convert your text into natural-sounding speech with our AI-powered voice generation technology',
+      generateTab: 'Generate Audio',
+      libraryTab: 'My Library',
       inputPlaceholder: 'Type or paste your text here...',
       selectVoice: 'Select Voice',
       speed: 'Speed',
@@ -60,9 +83,90 @@ export const translations = {
       download: 'Download',
       copy: 'Copy Link',
       clear: 'Clear',
+      save: 'Save to Library',
+      load: 'Load',
+      noSavedAudios: 'No saved audios yet',
+      generateToSave: 'Generate some audio and save it to your library',
       generated: 'Generated Audio',
       signInPrompt: 'Sign in to access more voices and features',
       charactersCount: 'Characters: {count}'
+    },
+    home: {
+      ttsPromo: {
+        title: 'Try Our Advanced Text to Speech Tool',
+        description: 'Convert your text into natural-sounding speech with multiple voices, languages, and customization options',
+        button: 'Try Text to Speech'
+      },
+      useCases: {
+        title: 'Text to Speech Use Cases',
+        subtitle: 'Discover how our voice technology can transform your projects across different domains',
+        cases: {
+          content: {
+            title: 'Content Creation',
+            badge: 'Media',
+            description: 'Create engaging podcasts, videos, and audiobooks with natural-sounding narration'
+          },
+          accessibility: {
+            title: 'Accessibility',
+            badge: 'Inclusive',
+            description: 'Make your content accessible to everyone, including those with visual impairments or reading difficulties'
+          },
+          education: {
+            title: 'Education',
+            badge: 'Learning',
+            description: 'Enhance learning materials with audio narration for improved comprehension and retention'
+          },
+          business: {
+            title: 'Business',
+            badge: 'Enterprise',
+            description: 'Create professional IVR systems, presentations, and training materials with consistent voice branding'
+          }
+        }
+      },
+      popularVoices: {
+        title: 'Popular Voice Models',
+        subtitle: 'Explore our collection of high-quality voice models across multiple languages and styles',
+        voices: {
+          emma: {
+            name: 'Emma',
+            type: 'British Female',
+            description: 'Clear and professional voice with natural intonation'
+          },
+          yunxi: {
+            name: 'Yunxi',
+            type: 'Chinese Male',
+            description: 'Warm and engaging voice with excellent pronunciation'
+          },
+          tebukuro: {
+            name: 'Tebukuro',
+            type: 'Japanese Female',
+            description: 'Soft and melodic voice with natural Japanese accent'
+          },
+          siwis: {
+            name: 'Siwis',
+            type: 'French Female',
+            description: 'Elegant and articulate voice with authentic French accent'
+          }
+        }
+      },
+      howItWorks: {
+        title: 'How It Works',
+        subtitle: 'Transform your text into natural-sounding speech in just a few simple steps',
+        steps: {
+          step1: {
+            title: 'Enter Your Text',
+            description: 'Type or paste the text you want to convert to speech'
+          },
+          step2: {
+            title: 'Choose a Voice',
+            description: 'Select from our diverse collection of natural-sounding voices'
+          },
+          step3: {
+            title: 'Generate & Download',
+            description: 'Generate your audio and download it for use in your projects'
+          }
+        }
+      }
     },
     voice: {
       // English - British Male
@@ -112,8 +216,7 @@ export const translations = {
     pricing: {
       title: 'Simple, Transparent Pricing',
       subtitle: 'Choose the plan that works for you',
-      monthly: 'Monthly',
-      yearly: 'Yearly',
+
       free: {
         title: 'Free',
         price: '$0',
@@ -124,7 +227,6 @@ export const translations = {
       basic: {
         title: 'Basic',
         price: '$5',
-        period: '/month',
         description: 'For regular users',
         features: '10 voice models\n30,000 characters per month\nHigh quality audio\nStandard speed control\nEmail support',
         cta: 'Get Basic'
@@ -132,7 +234,6 @@ export const translations = {
       pro: {
         title: 'Pro',
         price: '$12',
-        period: '/month',
         description: 'For content creators',
         features: '20+ voice models\n100,000 characters per month\nHD quality audio\nAdvanced speed control\nPriority generation',
         cta: 'Upgrade to Pro'
@@ -174,7 +275,6 @@ export const translations = {
       title: 'Ready to transform your text?',
       subtitle: 'Start creating natural voiceovers today.',
       button: 'Get Started for Free',
-      noCredit: 'No credit card required'
     },
     footer: {
       description: 'VoiceWave provides high-quality text-to-speech conversion for content creators, developers, and businesses.',
@@ -200,7 +300,14 @@ export const translations = {
       french: 'French',
       allGenders: 'All',
       male: 'Male',
-      female: 'Female'
+      female: 'Female',
+      pageTitle: 'Voice Models',
+      pageDescription: 'Listen to our natural-sounding voice models in different languages and accents',
+      premium: 'Premium',
+      demoAvailable: 'Demo available',
+      unlockPremium: 'Unlock Premium',
+      playSample: 'Play Sample',
+      playing: 'Playing...'
     }
   },
   zh: {
@@ -208,6 +315,27 @@ export const translations = {
       home: '首页',
       pricing: '价格',
       voices: '声音模型',
+      tts: '文本转语音',
+      dashboard: '控制台'
+    },
+    dashboard: {
+      title: '控制台',
+      subtitle: '管理您的语音转换和账户',
+      charactersUsed: '已使用字符',
+      charactersUsedDesc: '当前计费周期内',
+      audioGenerated: '已生成音频',
+      audioGeneratedDesc: '本月',
+      savedVoices: '已保存声音',
+      customVoice: '自定义声音',
+      currentPlan: '当前套餐',
+      renewsOn: '续费日期',
+      recentConversions: '最近转换',
+      recentConversionsDesc: '您最近的文本转语音转换将显示在这里',
+      speechSample: '语音样本',
+      hoursAgo: '小时前',
+      yesterday: '昨天',
+      daysAgo: '天前',
+      loading: '加载中...'
     },
     auth: {
       welcomeBack: '欢迎回来',
@@ -247,6 +375,10 @@ export const translations = {
     },
     tts: {
       title: '文本转语音',
+      pageTitle: '高级文本转语音转换',
+      pageDescription: '使用我们的AI驱动的语音生成技术将您的文本转换为自然的语音',
+      generateTab: '生成音频',
+      libraryTab: '我的库',
       inputPlaceholder: '在此处输入或粘贴您的文本...',
       selectVoice: '选择声音',
       speed: '语速',
@@ -256,9 +388,90 @@ export const translations = {
       download: '下载',
       copy: '复制链接',
       clear: '清除',
-      generated: '已生成音频',
+      save: '保存到库',
+      load: '加载',
+      noSavedAudios: '还没有保存的音频',
+      generateToSave: '生成一些音频并保存到您的库中',
+      generated: '已生成的音频',
       signInPrompt: '登录以访问更多声音和功能',
       charactersCount: '字符数: {count}'
+    },
+    home: {
+      ttsPromo: {
+        title: '尝试我们的高级文本转语音工具',
+        description: '使用多种声音、语言和自定义选项将您的文本转换为自然的语音',
+        button: '尝试文本转语音'
+      },
+      useCases: {
+        title: '文本转语音应用场景',
+        subtitle: '探索我们的语音技术如何在不同领域改变您的项目',
+        cases: {
+          content: {
+            title: '内容创作',
+            badge: '媒体',
+            description: '使用自然的旁白创建引人入胜的播客、视频和有声读物'
+          },
+          accessibility: {
+            title: '无障碍访问',
+            badge: '包容性',
+            description: '让您的内容对所有人都可访问，包括视力障碍或阅读困难的人群'
+          },
+          education: {
+            title: '教育',
+            badge: '学习',
+            description: '通过音频讲解增强学习材料，提高理解力和记忆力'
+          },
+          business: {
+            title: '商业应用',
+            badge: '企业',
+            description: '创建专业的IVR系统、演示文稿和培训材料，保持一致的语音品牌'
+          }
+        }
+      },
+      popularVoices: {
+        title: '热门语音模型',
+        subtitle: '探索我们多种语言和风格的高质量语音模型收藏',
+        voices: {
+          emma: {
+            name: '艾玛',
+            type: '英式女声',
+            description: '清晰专业的声音，具有自然的语调'
+          },
+          yunxi: {
+            name: '云溪',
+            type: '中文男声',
+            description: '温暖引人的声音，发音准确'
+          },
+          tebukuro: {
+            name: '手袋',
+            type: '日语女声',
+            description: '柔和旋律的声音，具有自然的日语口音'
+          },
+          siwis: {
+            name: '西维斯',
+            type: '法语女声',
+            description: '优雅清晰的声音，具有真实的法语口音'
+          }
+        }
+      },
+      howItWorks: {
+        title: '如何使用',
+        subtitle: '只需几个简单步骤，就能将文本转换为自然的语音',
+        steps: {
+          step1: {
+            title: '输入文本',
+            description: '输入或粘贴您想要转换成语音的文本'
+          },
+          step2: {
+            title: '选择语音',
+            description: '从我们多样化的自然语音收藏中选择'
+          },
+          step3: {
+            title: '生成和下载',
+            description: '生成您的音频并下载以用于您的项目'
+          }
+        }
+      }
     },
     voice: {
       // English - British Male
@@ -308,8 +521,8 @@ export const translations = {
     pricing: {
       title: '简单透明的价格',
       subtitle: '选择适合您的计划',
-      monthly: '月付',
-      yearly: '年付',
+
+      selected: '选择',
       free: {
         title: '免费',
         price: '¥0',
@@ -320,7 +533,6 @@ export const translations = {
       basic: {
         title: '基础版',
         price: '¥35',
-        period: '/月',
         description: '适合经常使用',
         features: '10种声音模型\n每月30,000字符\n高品质音频\n标准速度控制\n电子邮件支持',
         cta: '获取基础版'
@@ -328,7 +540,6 @@ export const translations = {
       pro: {
         title: '专业版',
         price: '¥78',
-        period: '/月',
         description: '适合内容创作者',
         features: '20+种声音模型\n每月100,000字符\n高清音质\n高级速度控制\n优先生成',
         cta: '升级到专业版'
@@ -368,7 +579,6 @@ export const translations = {
       title: '准备好转换您的文本了吗？',
       subtitle: '立即开始创建自然旁白。',
       button: '免费开始',
-      noCredit: '无需信用卡'
     },
     footer: {
       description: 'VoiceWave为内容创作者、开发人员和企业提供高质量的文本到语音转换。',
@@ -394,7 +604,14 @@ export const translations = {
       french: '法语',
       allGenders: '全部',
       male: '男声',
-      female: '女声'
+      female: '女声',
+      pageTitle: '声音模型',
+      pageDescription: '聆听我们不同语言和口音的自然声音模型',
+      premium: '高级版',
+      demoAvailable: '可试听',
+      unlockPremium: '解锁高级版',
+      playSample: '播放示例',
+      playing: '播放中...'
     }
   },
   ja: {
@@ -402,6 +619,27 @@ export const translations = {
       home: 'ホーム',
       pricing: '料金',
       voices: '音声モデル',
+      tts: 'テキスト読み上げ',
+      dashboard: 'ダッシュボード'
+    },
+    dashboard: {
+      title: 'ダッシュボード',
+      subtitle: '音声変換とアカウントを管理する',
+      charactersUsed: '使用文字数',
+      charactersUsedDesc: '現在の請求期間',
+      audioGenerated: '生成された音声',
+      audioGeneratedDesc: '今月',
+      savedVoices: '保存された音声',
+      customVoice: 'カスタム音声',
+      currentPlan: '現在のプラン',
+      renewsOn: '更新日',
+      recentConversions: '最近の変換',
+      recentConversionsDesc: '最近のテキスト読み上げ変換がここに表示されます',
+      speechSample: '音声サンプル',
+      hoursAgo: '時間前',
+      yesterday: '昨日',
+      daysAgo: '日前',
+      loading: '読み込み中...'
     },
     auth: {
       welcomeBack: 'おかえりなさい',
@@ -441,6 +679,10 @@ export const translations = {
     },
     tts: {
       title: 'テキスト読み上げ',
+      pageTitle: '高度なテキスト読み上げ変換',
+      pageDescription: '当社のAI駆動の音声生成技術を使用して、テキストを自然な音声に変換します',
+      generateTab: '音声を生成',
+      libraryTab: 'マイライブラリ',
       inputPlaceholder: 'ここにテキストを入力または貼り付け...',
       selectVoice: '音声を選択',
       speed: '速度',
@@ -450,9 +692,90 @@ export const translations = {
       download: 'ダウンロード',
       copy: 'リンクをコピー',
       clear: 'クリア',
+      save: 'ライブラリに保存',
+      load: '読み込み',
+      noSavedAudios: '保存された音声はまだありません',
+      generateToSave: '音声を生成してライブラリに保存してください',
       generated: '生成された音声',
-      signInPrompt: 'サインインして、より多くの音声と機能にアクセス',
+      signInPrompt: 'サインインしてより多くの音声と機能にアクセス',
       charactersCount: '文字数: {count}'
+    },
+    home: {
+      ttsPromo: {
+        title: '高度なテキスト読み上げツールを試す',
+        description: '複数の音声、言語、カスタマイズオプションを使用してテキストを自然な音声に変換',
+        button: 'テキスト読み上げを試す'
+      },
+      useCases: {
+        title: 'テキスト読み上げの活用例',
+        subtitle: '当社の音声技術がさまざまな分野でプロジェクトをどのように変革できるかを発見してください',
+        cases: {
+          content: {
+            title: 'コンテンツ制作',
+            badge: 'メディア',
+            description: '自然なナレーションで魅力的なポッドキャスト、ビデオ、オーディオブックを作成'
+          },
+          accessibility: {
+            title: 'アクセシビリティ',
+            badge: '包括的',
+            description: '視覚障害や読書困難のある方を含め、すべての人がコンテンツにアクセスできるようにする'
+          },
+          education: {
+            title: '教育',
+            badge: '学習',
+            description: '音声ナレーションで学習教材を強化し、理解力と記憶力を向上'
+          },
+          business: {
+            title: 'ビジネス',
+            badge: '企業',
+            description: '一貫した音声ブランディングで専門的なIVRシステム、プレゼンテーション、トレーニング教材を作成'
+          }
+        }
+      },
+      popularVoices: {
+        title: '人気の音声モデル',
+        subtitle: '複数の言語とスタイルにわたる高品質な音声モデルコレクションを探索',
+        voices: {
+          emma: {
+            name: 'エマ',
+            type: 'イギリス女性',
+            description: '自然なイントネーションを持つクリアでプロフェッショナルな音声'
+          },
+          yunxi: {
+            name: 'ユンシー',
+            type: '中国男性',
+            description: '優れた発音を持つ温かみのある魅力的な音声'
+          },
+          tebukuro: {
+            name: '手袋',
+            type: '日本女性',
+            description: '自然な日本語のアクセントを持つ柔らかく旋律的な音声'
+          },
+          siwis: {
+            name: 'シヴィス',
+            type: 'フランス女性',
+            description: '本物のフランス語アクセントを持つ優雅で明瞭な音声'
+          }
+        }
+      },
+      howItWorks: {
+        title: '使い方',
+        subtitle: '簡単なステップでテキストを自然な音声に変換',
+        steps: {
+          step1: {
+            title: 'テキストを入力',
+            description: '音声に変換したいテキストを入力または貼り付け'
+          },
+          step2: {
+            title: '音声を選択',
+            description: '多様な自然な音声コレクションから選択'
+          },
+          step3: {
+            title: '生成とダウンロード',
+            description: '音声を生成し、プロジェクトで使用するためにダウンロード'
+          }
+        }
+      }
     },
     voice: {
       // English - British Male
@@ -502,8 +825,7 @@ export const translations = {
     pricing: {
       title: 'シンプルで透明な料金',
       subtitle: 'あなたに合ったプランを選択',
-      monthly: '月額',
-      yearly: '年額',
+
       free: {
         title: '無料',
         price: '¥0',
@@ -514,7 +836,6 @@ export const translations = {
       basic: {
         title: 'ベーシック',
         price: '¥650',
-        period: '/月',
         description: '定期的な利用に',
         features: '10の音声モデル\n月30,000文字\n高品質オーディオ\n標準速度調整\nメールサポート',
         cta: 'ベーシックを取得'
@@ -522,7 +843,6 @@ export const translations = {
       pro: {
         title: 'プロ',
         price: '¥1,500',
-        period: '/月',
         description: 'コンテンツ制作者向け',
         features: '20+の音声モデル\n月10万文字\nHD品質オーディオ\n高度な速度調整\n優先生成',
         cta: 'プロにアップグレード'
@@ -564,7 +884,6 @@ export const translations = {
       title: 'テキストを変換する準備はできましたか？',
       subtitle: '今日から自然なナレーションを作成しましょう。',
       button: '無料で始める',
-      noCredit: 'クレジットカード不要'
     },
     footer: {
       description: 'VoiceWaveはコンテンツ制作者、開発者、企業向けに高品質のテキスト読み上げ変換を提供します。',
@@ -590,7 +909,14 @@ export const translations = {
       french: 'フランス語',
       allGenders: 'すべて',
       male: '男性',
-      female: '女性'
+      female: '女性',
+      pageTitle: '音声モデル',
+      pageDescription: '様々な言語やアクセントの自然な音声モデルをお聴きください',
+      premium: 'プレミアム',
+      demoAvailable: 'デモ利用可能',
+      unlockPremium: 'プレミアムを解除',
+      playSample: 'サンプル再生',
+      playing: '再生中...'
     }
   },
   ko: {
@@ -598,6 +924,27 @@ export const translations = {
       home: '홈',
       pricing: '가격',
       voices: '음성 모델',
+      tts: '텍스트 음성 변환',
+      dashboard: '대시보드'
+    },
+    dashboard: {
+      title: '대시보드',
+      subtitle: '음성 변환 및 계정 관리',
+      charactersUsed: '사용된 문자',
+      charactersUsedDesc: '현재 결제 기간',
+      audioGenerated: '생성된 오디오',
+      audioGeneratedDesc: '이번 달',
+      savedVoices: '저장된 음성',
+      customVoice: '커스텀 음성',
+      currentPlan: '현재 플랜',
+      renewsOn: '갱신 날짜',
+      recentConversions: '최근 변환',
+      recentConversionsDesc: '최근 텍스트 음성 변환이 여기에 표시됩니다',
+      speechSample: '음성 샘플',
+      hoursAgo: '시간 전',
+      yesterday: '어제',
+      daysAgo: '일 전',
+      loading: '로딩 중...'
     },
     auth: {
       welcomeBack: '환영합니다',
@@ -637,7 +984,11 @@ export const translations = {
     },
     tts: {
       title: '텍스트 음성 변환',
-      inputPlaceholder: '여기에 텍스트를 입력하거나 붙여넣으세요...',
+      pageTitle: '고급 텍스트 음성 변환',
+      pageDescription: 'AI 기반 음성 생성 기술로 텍스트를 자연스러운 음성으로 변환합니다',
+      generateTab: '오디오 생성',
+      libraryTab: '내 라이브러리',
+      inputPlaceholder: '여기에 텍스트를 입력하거나 붙여넣기...',
       selectVoice: '음성 선택',
       speed: '속도',
       generate: '생성',
@@ -646,9 +997,90 @@ export const translations = {
       download: '다운로드',
       copy: '링크 복사',
       clear: '지우기',
+      save: '라이브러리에 저장',
+      load: '불러오기',
+      noSavedAudios: '저장된 오디오가 없습니다',
+      generateToSave: '오디오를 생성하고 라이브러리에 저장하세요',
       generated: '생성된 오디오',
-      signInPrompt: '더 많은 음성과 기능에 접근하려면 로그인하세요',
+      signInPrompt: '더 많은 음성과 기능에 액세스하려면 로그인하세요',
       charactersCount: '글자 수: {count}'
+    },
+    home: {
+      ttsPromo: {
+        title: '고급 텍스트 음성 변환 도구를 사용해보세요',
+        description: '다양한 음성, 언어 및 사용자 정의 옵션으로 텍스트를 자연스러운 음성으로 변환',
+        button: '텍스트 음성 변환 시도'
+      },
+      useCases: {
+        title: '텍스트 음성 변환 활용 사례',
+        subtitle: '당사의 음성 기술이 다양한 분야에서 프로젝트를 어떻게 변화시킬 수 있는지 알아보세요',
+        cases: {
+          content: {
+            title: '콘텐츠 제작',
+            badge: '미디어',
+            description: '자연스러운 내레이션으로 매력적인 팟캐스트, 비디오 및 오디오북 제작'
+          },
+          accessibility: {
+            title: '접근성',
+            badge: '포용적',
+            description: '시각 장애나 읽기 어려움이 있는 사람들을 포함한 모든 사람이 콘텐츠에 접근할 수 있도록 지원'
+          },
+          education: {
+            title: '교육',
+            badge: '학습',
+            description: '오디오 내레이션으로 학습 자료를 향상시켜 이해력과 기억력 개선'
+          },
+          business: {
+            title: '비즈니스',
+            badge: '기업',
+            description: '일관된 음성 브랜딩으로 전문적인 IVR 시스템, 프레젠테이션 및 교육 자료 제작'
+          }
+        }
+      },
+      popularVoices: {
+        title: '인기 있는 음성 모델',
+        subtitle: '다양한 언어와 스타일의 고품질 음성 모델 컨텐츠를 탐색해보세요',
+        voices: {
+          emma: {
+            name: '에마',
+            type: '영국 여성',
+            description: '자연스러운 억양을 가진 선명하고 전문적인 목소리'
+          },
+          yunxi: {
+            name: '윤시',
+            type: '중국 남성',
+            description: '우수한 발음을 가진 따뜻하고 매력적인 목소리'
+          },
+          tebukuro: {
+            name: '테부쿠로',
+            type: '일본 여성',
+            description: '자연스러운 일본어 악센트를 가진 부드럽고 선률적인 목소리'
+          },
+          siwis: {
+            name: '시위스',
+            type: '프랑스 여성',
+            description: '진정한 프랑스어 악센트를 가진 우아하고 명확한 목소리'
+          }
+        }
+      },
+      howItWorks: {
+        title: '사용 방법',
+        subtitle: '단 몇 가지 간단한 단계로 텍스트를 자연스러운 음성으로 변환하세요',
+        steps: {
+          step1: {
+            title: '텍스트 입력',
+            description: '음성으로 변환하고 싶은 텍스트를 입력하거나 붙여넣기'
+          },
+          step2: {
+            title: '음성 선택',
+            description: '다양한 자연스러운 음성 컨텐츠에서 선택'
+          },
+          step3: {
+            title: '생성 및 다운로드',
+            description: '오디오를 생성하고 프로젝트에서 사용하기 위해 다운로드'
+          }
+        }
+      }
     },
     voice: {
       // English - British Male
@@ -698,8 +1130,7 @@ export const translations = {
     pricing: {
       title: '간단하고 투명한 가격',
       subtitle: '당신에게 맞는 플랜을 선택하세요',
-      monthly: '월간',
-      yearly: '연간',
+
       free: {
         title: '무료',
         price: '₩0',
@@ -710,7 +1141,6 @@ export const translations = {
       basic: {
         title: '베이직',
         price: '₩6500',
-        period: '/월',
         description: '정기적인 사용자용',
         features: '10개 음성 모델\n월 30,000자\n고품질 오디오\n표준 속도 제어\n이메일 지원',
         cta: '베이직 시작하기'
@@ -718,7 +1148,6 @@ export const translations = {
       pro: {
         title: '프로',
         price: '₩15,000',
-        period: '/월',
         description: '콘텐츠 제작자용',
         features: '20+ 음성 모델\n월 100,000자\nHD 품질 오디오\n고급 속도 제어\n우선 생성',
         cta: '프로로 업그레이드'
@@ -760,7 +1189,6 @@ export const translations = {
       title: '텍스트를 변환할 준비가 되셨나요?',
       subtitle: '오늘부터 자연스러운 음성 내레이션을 만들어보세요.',
       button: '무료로 시작하기',
-      noCredit: '신용카드 불필요'
     },
     footer: {
       description: 'VoiceWave는 콘텐츠 제작자, 개발자, 기업을 위한 고품질 텍스트 음성 변환 서비스를 제공합니다.',
@@ -786,7 +1214,14 @@ export const translations = {
       french: '프랑스어',
       allGenders: '전체',
       male: '남성',
-      female: '여성'
+      female: '여성',
+      pageTitle: '음성 모델',
+      pageDescription: '다양한 언어와 억양으로 자연스러운 음성 모델을 들어보세요',
+      premium: '프리미엄',
+      demoAvailable: '데모 가능',
+      unlockPremium: '프리미엄 잠금 해제',
+      playSample: '샘플 재생',
+      playing: '재생 중...'
     }
   }
 };

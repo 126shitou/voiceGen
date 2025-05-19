@@ -32,6 +32,13 @@ export function MobileMenu() {
             {t('nav.home')}
           </Link>
           <Link 
+            href="/text-to-speech" 
+            className="block px-2 py-1 text-lg hover:text-primary transition-colors"
+            onClick={() => setOpen(false)}
+          >
+            {t('nav.tts')}
+          </Link>
+          <Link 
             href="/pricing" 
             className="block px-2 py-1 text-lg hover:text-primary transition-colors"
             onClick={() => setOpen(false)}
