@@ -11,7 +11,7 @@ export const connectToDB = async () => {
     }
 
     try {
-        await mongoose.connect(process.env.NEXT_PUBLIC_DB_URL || "", {
+        await mongoose.connect(process.env.DB_URL || "", {
             dbName: "VoiceGen",
         })
 

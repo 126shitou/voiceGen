@@ -5,14 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, Clock, FileText, VolumeX } from 'lucide-react';
-import { useLanguage } from '@/lib/language-context';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const loading = status === 'loading';
   const user = session?.user;
   const router = useRouter();
-  const { t } = useLanguage();
 
   // Redirect if not logged in
   useEffect(() => {
@@ -33,7 +31,7 @@ export default function DashboardPage() {
     <div className="container py-10 px-4 mx-auto">
       <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
       <p className="text-muted-foreground mb-8">Manage your voice conversions and account</p>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -45,7 +43,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">For the current billing period</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Audio Generated</CardTitle>
@@ -56,7 +54,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Saved Voices</CardTitle>
@@ -67,7 +65,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">+ 1 custom voice</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Current Plan</CardTitle>
@@ -79,7 +77,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      
+
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Recent Conversions</h2>
         <Card>

@@ -7,13 +7,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Check } from 'lucide-react';
+import { Check, Crown, Sparkles } from 'lucide-react';
 import getStripe from '@/lib/stripe';
+import { useRouter } from 'next/navigation';
 
 export default function PricingPage() {
   const { t, language } = useLanguage();
   const { data: session, status } = useSession();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'basic' | 'pro'>('free');
+  const router = useRouter()
 
   // Currency symbols by language
   const currencySymbols: Record<string, string> = {
@@ -30,8 +33,15 @@ export default function PricingPage() {
     ja: 130,    // JPY
     ko: 1300,   // KRW
   };
+  type PlanEnum = 'free' | 'basic' | 'pro'
 
-  const payPro = async () => {
+  const payForPlan = async (plan: PlanEnum) => {
+
+    if (plan === 'free') {
+      router.push('/');
+      return
+    }
+
     let userId = session?.user.id
     const stripe = await getStripe()
     const response = await fetch("/api/stripe", {
@@ -39,7 +49,7 @@ export default function PricingPage() {
       headers: {
         "Content-Type": "application/josn"
       },
-      body: JSON.stringify({ userId })
+      body: JSON.stringify({ userId, type: plan })
     })
 
 
@@ -106,8 +116,16 @@ export default function PricingPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {/* Free Plan */}
-        <Card className="border border-border/50 hover-lift">
+        <Card
+          className={`border transition-all duration-300 transform hover:scale-[1.02] ${selectedPlan === 'free' ? "ring-2 ring-primary/50 shadow-md" : "border-border/50 hover:border-border"}`}
+          onClick={() => setSelectedPlan('free')}
+        >
           <CardHeader className="text-center">
+            <div className="flex justify-center mb-2">
+              <div className="p-2 rounded-full bg-primary/5 text-primary">
+                <Check className="h-5 w-5" />
+              </div>
+            </div>
             <CardTitle className="text-2xl">{t('pricing.free.title')}</CardTitle>
             <div className="mt-4 text-4xl font-bold">{t('pricing.free.price')}</div>
             <CardDescription className="mt-2">{t('pricing.free.description')}</CardDescription>
@@ -123,16 +141,72 @@ export default function PricingPage() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button className="w-full bg-primary/10 text-primary hover:bg-primary/20">
-              {t('pricing.free.cta')}
+            <Button onClick={() => payForPlan('free')}
+              className={`w-full transition-all ${selectedPlan === 'free' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
+            >
+              {selectedPlan === 'free' ? t('pricing.selected') : t('pricing.free.cta')}
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Basic Plan */}
+        <Card
+          className={`border transition-all duration-300 transform hover:scale-[1.02] ${selectedPlan === 'basic' ? "ring-2 ring-primary shadow-lg" : "border-border/50 hover:border-primary/30"} relative overflow-hidden`}
+          onClick={() => setSelectedPlan('basic')}
+        >
+          {selectedPlan === 'basic' && (
+            <div className="absolute top-0 right-0 left-0 h-1.5 bg-primary"></div>
+          )}
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-2">
+              <div className="p-2 rounded-full bg-primary/10 text-primary">
+                <Crown className="h-5 w-5" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">{t('pricing.basic.title')}</CardTitle>
+            <div className="mt-4 flex items-baseline justify-center">
+              <span className="text-4xl font-bold">{getPrice(billingPeriod === 'yearly' ? 4 : 5)}</span>
+              <span className="text-muted-foreground ml-2">{t('pricing.basic.period')}</span>
+            </div>
+            <CardDescription className="mt-2">{t('pricing.basic.description')}</CardDescription>
+          </CardHeader>
+          <CardContent className="mt-2">
+            <ul className="space-y-3">
+              {t('pricing.basic.features').split('\n').map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <Check className="mr-2 h-5 w-5 text-primary flex-shrink-0" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={() => payForPlan('basic')}
+              className={`w-full transition-all ${selectedPlan === 'basic' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
+            >
+              {selectedPlan === 'basic' ? t('pricing.selected') : t('pricing.basic.cta')}
             </Button>
           </CardFooter>
         </Card>
 
         {/* Pro Plan */}
-        <Card className="border-primary relative purple-glow hover-lift">
-          <div className="absolute top-0 right-0 left-0 h-2 bg-primary rounded-t-lg"></div>
+        <Card
+          className={`relative transition-all duration-300 transform hover:scale-[1.02] ${selectedPlan === 'pro' ? "ring-2 ring-primary shadow-xl border-primary" : "border-primary/50"} overflow-hidden`}
+          onClick={() => setSelectedPlan('pro')}
+        >
+          <div className="absolute top-0 right-0 left-0 h-2 bg-primary"></div>
+          {selectedPlan === 'pro' && (
+            <div className="absolute inset-0 border-2 border-primary rounded-lg pointer-events-none"></div>
+          )}
+          <div className={`absolute -right-10 top-5 rotate-45 bg-primary text-xs px-10 py-1 text-primary-foreground ${selectedPlan === 'pro' ? "bg-primary" : "bg-primary/80"}`}>
+            {t('pricing.recommended')}
+          </div>
           <CardHeader className="text-center pt-8">
+            <div className="flex justify-center mb-2">
+              <div className={`p-2 rounded-full ${selectedPlan === 'pro' ? "bg-primary text-primary-foreground" : "bg-primary/20 text-primary"}`}>
+                <Sparkles className="h-5 w-5" />
+              </div>
+            </div>
             <CardTitle className="text-2xl">{t('pricing.pro.title')}</CardTitle>
             <div className="mt-4 flex items-baseline justify-center">
               <span className="text-4xl font-bold">{getProPrice()}</span>
@@ -144,19 +218,21 @@ export default function PricingPage() {
             <ul className="space-y-3">
               {t('pricing.pro.features').split('\n').map((feature, index) => (
                 <li key={index} className="flex items-start">
-                  <Check className="mr-2 h-5 w-5 text-primary flex-shrink-0" />
+                  <Check className="mr-2 h-5 w-5 flex-shrink-0 text-primary" />
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
           </CardContent>
           <CardFooter>
-            <Button onClick={payPro} className="w-full bg-primary hover:bg-primary/90">
-              {t('pricing.pro.cta')}
+            <Button
+              onClick={() => payForPlan('pro')}
+              className={`w-full transition-all bg-primary hover:bg-primary/90 text-primary-foreground ${selectedPlan === 'pro' ? "shadow-lg" : ""}`}
+            >
+              {selectedPlan === 'pro' ? t('pricing.pro.cta') : t('pricing.pro.cta')}
             </Button>
           </CardFooter>
         </Card>
-
       </div>
     </div>
   );

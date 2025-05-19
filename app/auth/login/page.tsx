@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import '../auth.css';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Github, ArrowRight, Loader2 } from 'lucide-react';
@@ -58,7 +57,6 @@ function AnimatedCircles() {
 }
 
 export default function LoginPage() {
-  const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);

@@ -1,17 +1,15 @@
 import { Schema, model, models } from "mongoose"
 const OrderSchema = new Schema({
-    email: {
+    userId: {
         type: String,
-        unique: [true, "Email already exists"],
-        required: [true, "Email is required"],
+        required: [true, "userId is required"],
     },
     price: {
         type: Number
     },
-    type: {
+    product: {
         type: String,
-        enum: ["monthly", "yearly"],
-        require: [true, "Type is required"]
+        require: [true, "Product is required"]
     },
     CreateDate: {
         type: String,

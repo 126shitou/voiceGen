@@ -121,6 +121,14 @@ export const translations = {
         features: '3 voice models\n1,000 characters per day\nStandard quality audio\nBasic speed control',
         cta: 'Get Started'
       },
+      basic: {
+        title: 'Basic',
+        price: '$5',
+        period: '/month',
+        description: 'For regular users',
+        features: '10 voice models\n30,000 characters per month\nHigh quality audio\nStandard speed control\nEmail support',
+        cta: 'Get Basic'
+      },
       pro: {
         title: 'Pro',
         price: '$12',
@@ -136,7 +144,9 @@ export const translations = {
         features: 'Unlimited voice models\nUnlimited characters\nStudio quality audio\nCustom voice creation\nAPI access\nDedicated support',
         cta: 'Contact Sales'
       },
-      saveWithYearly: 'Save 20% with yearly billing'
+      saveWithYearly: 'Save 20% with yearly billing',
+      selected: 'Selected',
+      recommended: 'Recommended'
     },
     payment: {
       success: {
@@ -307,6 +317,14 @@ export const translations = {
         features: '3种声音模型\n每天1,000字符\n标准音质\n基本速度控制',
         cta: '开始使用'
       },
+      basic: {
+        title: '基础版',
+        price: '¥35',
+        period: '/月',
+        description: '适合经常使用',
+        features: '10种声音模型\n每月30,000字符\n高品质音频\n标准速度控制\n电子邮件支持',
+        cta: '获取基础版'
+      },
       pro: {
         title: '专业版',
         price: '¥78',
@@ -406,8 +424,6 @@ export const translations = {
       alreadyHaveAccount: 'すでにアカウントをお持ちですか？',
       login: 'ログイン',
       byRegistering: '登録することで、当社の',
-
- 
       signup: '登録',
       dashboard: 'ダッシュボード'
     },
@@ -492,15 +508,23 @@ export const translations = {
         title: '無料',
         price: '¥0',
         description: '時々の利用に',
-        features: '3つの音声モデル\n1日1,000文字\n標準音質\n基本的な速度調整',
+        features: '3つの音声モデル\n1日1,000文字\n標準品質オーディオ\n基本的な速度調整',
         cta: '始める'
+      },
+      basic: {
+        title: 'ベーシック',
+        price: '¥650',
+        period: '/月',
+        description: '定期的な利用に',
+        features: '10の音声モデル\n月30,000文字\n高品質オーディオ\n標準速度調整\nメールサポート',
+        cta: 'ベーシックを取得'
       },
       pro: {
         title: 'プロ',
         price: '¥1,500',
         period: '/月',
         description: 'コンテンツ制作者向け',
-        features: '20+の音声モデル\n月10万文字\nHD音質\n高度な速度調整\n優先生成',
+        features: '20+の音声モデル\n月10万文字\nHD品質オーディオ\n高度な速度調整\n優先生成',
         cta: 'プロにアップグレード'
       },
       enterprise: {
@@ -510,7 +534,9 @@ export const translations = {
         features: '無制限の音声モデル\n無制限の文字数\nスタジオ品質の音声\nカスタム音声作成\nAPIアクセス\n専任サポート',
         cta: '営業に問い合わせ'
       },
-      saveWithYearly: '年額で20%お得'
+      saveWithYearly: '年額で20%お得',
+      selected: '選択済み',
+      recommended: 'おすすめ'
     },
     payment: {
       success: {
@@ -678,15 +704,23 @@ export const translations = {
         title: '무료',
         price: '₩0',
         description: '가끔 사용하는 경우',
-        features: '3개 음성 모델\n하루 1,000자\n표준 품질 오디오\n기본 속도 조절',
+        features: '3개 음성 모델\n하루 1,000자\n표준 품질 오디오\n기본 속도 제어',
         cta: '시작하기'
+      },
+      basic: {
+        title: '베이직',
+        price: '₩6500',
+        period: '/월',
+        description: '정기적인 사용자용',
+        features: '10개 음성 모델\n월 30,000자\n고품질 오디오\n표준 속도 제어\n이메일 지원',
+        cta: '베이직 시작하기'
       },
       pro: {
         title: '프로',
         price: '₩15,000',
         period: '/월',
         description: '콘텐츠 제작자용',
-        features: '20+ 음성 모델\n월 100,000자\nHD 품질 오디오\n고급 속도 조절\n우선 생성',
+        features: '20+ 음성 모델\n월 100,000자\nHD 품질 오디오\n고급 속도 제어\n우선 생성',
         cta: '프로로 업그레이드'
       },
       enterprise: {
@@ -696,7 +730,9 @@ export const translations = {
         features: '무제한 음성 모델\n무제한 글자 수\n스튜디오 품질 오디오\n맞춤 음성 제작\nAPI 액세스\n전담 지원',
         cta: '영업팀 문의'
       },
-      saveWithYearly: '연간 결제로 20% 절약'
+      saveWithYearly: '연간 결제로 20% 절약',
+      selected: '선택됨',
+      recommended: '추천'
     },
     payment: {
       success: {
