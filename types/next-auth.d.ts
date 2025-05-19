@@ -7,7 +7,7 @@ declare module "next-auth" {
             email?: string | null
             image?: string | null
             CrateDate?: string | null
-            UpdateDate: string | null
+            updateDate: string | null
         }
     }
     interface User {
@@ -17,7 +17,7 @@ declare module "next-auth" {
         image?: string | null
         image?: string | null
         CrateDate?: string | null
-        UpdateDate: string | null
+        updateDate: string | null
     }
 }
 declare module "next-auth/jwt" {

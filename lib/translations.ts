@@ -238,14 +238,16 @@ export const translations = {
     },
     payment: {
       success: {
-        title: 'Payment Successful!',
-        subtitle: 'Thank you for your purchase. Your subscription is now active.',
+        title: 'Payment Successful',
+        subtitle: 'Thank you for your purchase',
         processing: 'Processing your payment...',
         plan: 'Plan',
         amount: 'Amount',
         date: 'Date',
         account: 'Account',
-        receiptInfo: 'A receipt has been sent to your email address. If you have any questions or need assistance, please contact our support team.',
+        receiptInfo: 'A receipt has been sent to your email address.',
+        thankYou: 'Thank you for your purchase! Your account has been credited.',
+        enjoyService: 'You can now enjoy our premium voice generation service.',
         dashboard: 'Go to Dashboard',
         home: 'Return to Home'
       },
@@ -536,6 +538,8 @@ export const translations = {
         date: '日期',
         account: '账户',
         receiptInfo: '收据已发送至您的邮箱。如有任何问题或需要帮助，请联系我们的支持团队。',
+        thankYou: '感谢您的购买！您的账户已经充值成功。',
+        enjoyService: '您现在可以使用我们的高级语音生成服务了。',
         dashboard: '前往控制台',
         home: '返回首页'
       },
@@ -820,15 +824,17 @@ export const translations = {
     },
     payment: {
       success: {
-        title: '支払い成功！',
-        subtitle: 'ご購入ありがとうございます。サブスクリプションが有効になりました。',
-        processing: '支払い処理中...',
+        title: 'お支払いが完了しました',
+        subtitle: 'ご購入ありがとうございます',
+        processing: 'お支払いを処理しています...',
         plan: 'プラン',
         amount: '金額',
         date: '日付',
         account: 'アカウント',
-        receiptInfo: '領収書がメールアドレスに送信されました。ご質問やサポートが必要な場合は、サポートチームにお問い合わせください。',
-        dashboard: 'ダッシュボードへ',
+        receiptInfo: '領収書がメールアドレスに送信されました。',
+        thankYou: 'ご購入ありがとうございます！お客様のアカウントに充幣されました。',
+        enjoyService: 'これで当社のプレミアム音声生成サービスをお楽しみいただけます。',
+        dashboard: 'ダッシュボードに移動',
         home: 'ホームに戻る'
       },
       canceled: {
@@ -1113,14 +1119,16 @@ export const translations = {
     },
     payment: {
       success: {
-        title: '결제 성공!',
-        subtitle: '구매해 주셔서 감사합니다. 구독이 활성화되었습니다.',
-        processing: '결제 처리 중...',
+        title: '결제 성공',
+        subtitle: '구매해 주셔서 감사합니다',
+        processing: '결제를 처리하고 있습니다...',
         plan: '플랜',
         amount: '금액',
         date: '날짜',
         account: '계정',
-        receiptInfo: '영수증이 이메일 주소로 전송되었습니다. 질문이나 도움이 필요하시면 지원 팀에 문의하세요.',
+        receiptInfo: '영수증이 이메일 주소로 전송되었습니다.',
+        thankYou: '구매해 주셔서 감사합니다! 고객님의 계정에 충전되었습니다.',
+        enjoyService: '이제 당사의 프리미엄 음성 생성 서비스를 즐기실 수 있습니다.',
         dashboard: '대시보드로 이동',
         home: '홈으로 돌아가기'
       },

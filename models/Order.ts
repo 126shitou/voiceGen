@@ -1,4 +1,5 @@
 import { Schema, model, models } from "mongoose"
+import { getCurrentTime } from '@/lib/utils';
 const OrderSchema = new Schema({
     userId: {
         type: String,
@@ -11,12 +12,21 @@ const OrderSchema = new Schema({
         type: String,
         require: [true, "Product is required"]
     },
-    CreateDate: {
+    payEmail: {
         type: String,
     },
-    UpdateDate: {
+    payName: {
         type: String,
-        default: new Date().toLocaleString()
+    },
+    payCurrency: {
+        type: String,
+    },
+    createDate: {
+        type: Date,
+    },
+    updateDate: {
+        type: Date,
+        default: getCurrentTime()
     },
 
 })

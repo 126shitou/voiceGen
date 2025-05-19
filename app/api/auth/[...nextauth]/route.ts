@@ -2,7 +2,7 @@ import NextAuth, { AuthOptions } from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import { connectToDB } from "@/mongodb/database"
 import User from "@/models/User"
-
+import { getCurrentTime } from '@/lib/utils'
 
 const authOptions: AuthOptions = {
     providers: [
@@ -36,8 +36,8 @@ const authOptions: AuthOptions = {
                     name: user.name,
                     email: user.email,
                     image: user.image,
-                    Balance: 0,
-                    CreateDate: new Date().toLocaleString()
+                    balance: 0,
+                    createDate: getCurrentTime()
                 });
                 await InsertUser.save()
                 console.log("InsertUser insert success!");

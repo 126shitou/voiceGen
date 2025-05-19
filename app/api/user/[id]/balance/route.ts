@@ -27,28 +27,26 @@ export const POST = async (req: NextRequest, { params }: IParams) => {
         }
 
         // 更新用户余额
-        user.Balance += Number(amount);
+        user.balance += Number(amount);
 
         // 确保余额不为负数
-        if (user.Balance < 0) {
-            user.Balance = 0;
+        if (user.balance < 0) {
+            user.balance = 0;
         }
 
         // 保存更新后的用户信息
         await user.save();
-
+ 
         return new Response(JSON.stringify({
             success: true,
-            balance: user.Balance
+            balance: user.balance
         }), {
             status: 200,
-            headers: { 'Content-Type': 'application/json' }
         });
     } catch (error) {
         console.error("API:/api/user/[id]=>post error=>", error);
         return new Response(JSON.stringify({ error: 'Failed to update balance' }), {
             status: 500,
-            headers: { 'Content-Type': 'application/json' }
         });
     }
 }

@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { connectToDB } from '@/mongodb/database';
 import User from '@/models/User'
 import Order from '@/models/Order'
+import { getCurrentTime } from '@/lib/utils'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
     apiVersion: "2025-04-30.basil"
@@ -31,19 +32,22 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
             const line_items = await stripe.checkout.sessions.listLineItems(session.id);
             await connectToDB();
             const user = await User.findById(session.client_reference_id)
-            console.log("session", session);
-            console.log("line_items", line_items);
+            console.log("session", JSON.stringify(session));
+            console.log("line_items", JSON.stringify(line_items));
             if (user) {
                 line_items.data.forEach(async ele => {
                     const pId = ele.price?.product
                     let v = PRODUCT_TOKEN_LIST.find(i => i.key === pId)?.value || 0
-                    user.Balance += v
+                    user.balance += v
 
                     const order = new Order({
                         userId: session.client_reference_id,
                         price: session.amount_total,
+                        payCurrency: session.currency,
+                        payName: session.customer_details?.name,
+                        payEmail: session.customer_details?.email,
                         product: pId,
-                        CreateDate: new Date().toLocaleDateString()
+                        createDate: getCurrentTime()
                     })
                     await order.save()
                 });

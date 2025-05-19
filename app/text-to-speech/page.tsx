@@ -30,8 +30,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import User from '@/models/User';
-
+import { getCurrentTime } from '@/lib/utils';
 // Voice models
 const voices = [
   // English - British Male
@@ -118,7 +117,9 @@ export default function TextToSpeechPage() {
     setSpeed(value[0]);
   };
 
+
   const generateSpeech = async () => {
+    let voiceUrl = ''
     // 检查用户是否登录
     if (!session?.user?.id) {
       toast({
@@ -143,11 +144,11 @@ export default function TextToSpeechPage() {
     const requiredBalance = textLength * 0.1;
 
     // 检查用户余额是否足够
-    if (dbUser.Balance < requiredBalance) {
+    if (dbUser.balance < requiredBalance) {
       toast({
         variant: 'destructive',
-        title: 'Insufficient Balance',
-        description: `You need ${requiredBalance.toFixed(1)} points to generate this audio. Your current balance is ${dbUser.Balance.toFixed(1)} points.`,
+        title: 'Insufficient balance',
+        description: `You need ${requiredBalance.toFixed(1)} points to generate this audio. Your current balance is ${dbUser.balance.toFixed(1)} points.`,
       });
       return;
     }
@@ -167,16 +168,6 @@ export default function TextToSpeechPage() {
       // Use the voice ID directly since it already matches the model's voice ID
       const tk = process.env.NEXT_PUBLIC_TK;
 
-      // Initial submission to create the prediction
-      const submitData = {
-        version: "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13",
-        input: {
-          text: text,
-          voice: voice,
-          speed: speed
-        }
-      };
-
       // Create the prediction
       const createResponse = await fetch('/api/replicate/v1/predictions', {
         method: 'POST',
@@ -184,7 +175,14 @@ export default function TextToSpeechPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${tk}`
         },
-        body: JSON.stringify(submitData),
+        body: JSON.stringify({
+          version: "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13",
+          input: {
+            text: text,
+            voice: voice,
+            speed: speed
+          }
+        }),
       });
 
       if (!createResponse.ok) {
@@ -241,10 +239,10 @@ export default function TextToSpeechPage() {
         setCurrentAudio(null);
 
         // 计算并扣除用户余额
-        const usedBalance = textLength * 0.1;
+        const usedBalance = (textLength * 0.1).toFixed(2);
 
         // 更新用户余额
-        await fetch(`/api/user/${session?.user.id}/balance`, {
+        let balanceData = await fetch(`/api/user/${session?.user.id}/balance`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -252,10 +250,26 @@ export default function TextToSpeechPage() {
           body: JSON.stringify({ amount: -usedBalance })
         });
 
+        let { balance } = await balanceData.json()
+
         toast({
           title: 'Success',
-          description: `Your audio has been generated successfully. Used ${usedBalance.toFixed(1)} points.`,
+          description: `Your audio has been generated successfully. Used ${usedBalance} points.`,
         });
+
+        await fetch(`/api/voice/add`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: session?.user.id,
+            voiceUrl: completed.output,
+            cost: usedBalance,
+            balance: balance,
+            createDate: getCurrentTime()
+          })
+        })
       } else {
         throw new Error('No output was generated.');
       }

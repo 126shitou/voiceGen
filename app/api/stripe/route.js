@@ -20,7 +20,7 @@ export const POST = async (req, res) => {
                 mode: 'payment',
                 payment_method_types: ['card'],
                 //TODO 修改为userId
-                client_reference_id: '682a99880b79f74943b95a1f',
+                client_reference_id: '682b11acbdba12c71f53c468',
                 line_items: [
                     {
                         price: price_id,

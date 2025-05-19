@@ -1,4 +1,6 @@
 import { Schema, model, models } from "mongoose"
+import { getCurrentTime } from '@/lib/utils';
+
 const UserSchema = new Schema({
     thirdPartId: {
         type: String,
@@ -16,16 +18,16 @@ const UserSchema = new Schema({
     image: {
         type: String
     },
-    Balance: {
+    balance: {
         type: Number,
         default: 0
     },
-    CreateDate: {
-        type: String,
+    createDate: {
+        type: Date,
     },
-    UpdateDate: {
-        type: String,
-        default: new Date().toLocaleString()
+    updateDate: {
+        type: Date,
+        default: getCurrentTime()
     },
 
 })

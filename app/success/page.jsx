@@ -1,4 +1,4 @@
- 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,33 +11,20 @@ import { Check, ArrowRight, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 export default function SuccessPage() {
+  // 不再需要获取sessionId参数
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get('session_id');
   const { data: session } = useSession();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
-  const [paymentInfo, setPaymentInfo] = useState(null);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // 如果有sessionId，可以从服务器获取更多支付信息
-    // 这里简化处理，直接显示成功信息
-    if (sessionId) {
-      // 模拟API调用延迟
-      const timer = setTimeout(() => {
-        setPaymentInfo({
-          plan: 'Pro',
-          amount: '$12.00',
-          date: new Date().toLocaleDateString(),
-        });
-        setLoading(false);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    } else {
+    // 短暂延迟以展示加载动画
+    const timer = setTimeout(() => {
       setLoading(false);
-    }
-  }, [sessionId]);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   if (loading) {
     return (
@@ -62,36 +49,21 @@ export default function SuccessPage() {
             {t('payment.success.subtitle')}
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="pt-6">
-          {paymentInfo && (
-            <div className="space-y-4">
-              <div className="flex justify-between py-2 border-b border-border/40">
-                <span className="text-muted-foreground">{t('payment.success.plan')}</span>
-                <span className="font-medium">{paymentInfo.plan}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-border/40">
-                <span className="text-muted-foreground">{t('payment.success.amount')}</span>
-                <span className="font-medium">{paymentInfo.amount}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-border/40">
-                <span className="text-muted-foreground">{t('payment.success.date')}</span>
-                <span className="font-medium">{paymentInfo.date}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-border/40">
-                <span className="text-muted-foreground">{t('payment.success.account')}</span>
-                <span className="font-medium">{session?.user?.email || 'User'}</span>
-              </div>
-            </div>
-          )}
-          
-          <div className="bg-primary/5 rounded-lg p-4 mt-6">
-            <p className="text-sm">
-              {t('payment.success.receiptInfo')}
+          <div className="text-center mb-6">
+            <p className="text-lg">
+              {t('payment.success.thankYou')}
+            </p>
+          </div>
+
+          <div className="bg-primary/5 rounded-lg p-4">
+            <p className="text-sm text-center">
+              {t('payment.success.enjoyService')}
             </p>
           </div>
         </CardContent>
-        
+
         <CardFooter className="flex flex-col space-y-3 pt-6">
           <Button asChild className="w-full">
             <Link href="/dashboard">
