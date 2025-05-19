@@ -82,7 +82,7 @@ export default function PricingPage() {
 
   // Get pro price
   const getProPrice = () => {
-    const basePrice = 12;
+    const basePrice = 50;
     return getPrice(basePrice);
   };
 
@@ -146,7 +146,7 @@ export default function PricingPage() {
             </div>
             <CardTitle className="text-2xl">{t('pricing.basic.title')}</CardTitle>
             <div className="mt-4 flex items-baseline justify-center">
-              <span className="text-4xl font-bold">{getPrice(5)}</span>
+              <span className="text-4xl font-bold">{getPrice(10)}</span>
             </div>
             <CardDescription className="mt-2">{t('pricing.basic.description')}</CardDescription>
           </CardHeader>
@@ -190,7 +190,6 @@ export default function PricingPage() {
             <CardTitle className="text-2xl">{t('pricing.pro.title')}</CardTitle>
             <div className="mt-4 flex items-baseline justify-center">
               <span className="text-4xl font-bold">{getProPrice()}</span>
-              <span className="text-muted-foreground ml-2">{t('pricing.pro.period')}</span>
             </div>
             <CardDescription className="mt-2">{t('pricing.pro.description')}</CardDescription>
           </CardHeader>

@@ -6,7 +6,8 @@ declare module "next-auth" {
             name?: string | null
             email?: string | null
             image?: string | null
-            provider?: string
+            CrateDate?: string | null
+            UpdateDate: string | null
         }
     }
     interface User {
@@ -14,7 +15,9 @@ declare module "next-auth" {
         name?: string
         email?: string
         image?: string | null
-        provider?: string
+        image?: string | null
+        CrateDate?: string | null
+        UpdateDate: string | null
     }
 }
 declare module "next-auth/jwt" {

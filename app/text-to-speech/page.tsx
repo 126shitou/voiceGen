@@ -15,14 +15,14 @@ import {
 } from '@/components/ui/select';
 import { useLanguage } from '@/lib/language-context';
 import { useSession } from 'next-auth/react';
-import { 
-  CheckCircle, 
-  Download, 
-  Pause, 
-  Play, 
-  RefreshCw, 
-  Volume2, 
-  XCircle, 
+import {
+  CheckCircle,
+  Download,
+  Pause,
+  Play,
+  RefreshCw,
+  Volume2,
+  XCircle,
   Wand2,
   Save,
   History,
@@ -30,30 +30,18 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import User from '@/models/User';
 
 // Voice models
 const voices = [
   // English - British Male
-  { id: 'bm_lewis', name: 'voice.bm_lewis'},
+  { id: 'bm_lewis', name: 'voice.bm_lewis' },
   { id: 'bm_daniel', name: 'voice.bm_daniel' },
   { id: 'bm_george', name: 'voice.bm_george' },
   // English - British Female
   { id: 'bf_emma', name: 'voice.bf_emma' },
   { id: 'bf_alice', name: 'voice.bf_alice' },
   { id: 'bf_lily', name: 'voice.bf_lily' },
-  // Japanese - Male
-  { id: 'jm_kumo', name: 'voice.jm_kumo' },
-  // Japanese - Female
-  { id: 'jf_tebukuro', name: 'voice.jf_tebukuro' },
-  { id: 'jf_alpha', name: 'voice.jf_alpha' },
-  { id: 'jf_gongitsune', name: 'voice.jf_gongitsune' },
-  // Chinese - Male
-  { id: 'zm_yunxia', name: 'voice.zm_yunxia' },
-  { id: 'zm_yunxi', name: 'voice.zm_yunxi' },
-  { id: 'zm_yunyang', name: 'voice.zm_yunyang' },
-  // Chinese - Female
-  { id: 'zf_xiaobei', name: 'voice.zf_xiaobei' },
-  { id: 'zf_xiaoni', name: 'voice.zf_xiaoni' },
   // French - Female
   { id: 'ff_siwis', name: 'voice.ff_siwis' },
 ];
@@ -131,6 +119,39 @@ export default function TextToSpeechPage() {
   };
 
   const generateSpeech = async () => {
+    // 检查用户是否登录
+    if (!session?.user?.id) {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication Required',
+        description: 'You must be logged in to generate speech.',
+      });
+      return;
+    }
+
+    // 获取用户信息和余额
+    let res = await fetch(`/api/user/${session.user.id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    let { user: dbUser } = await res.json()
+
+    // 计算所需费用 - 每个字符0.1点
+    const textLength = text.trim().length;
+    const requiredBalance = textLength * 0.1;
+
+    // 检查用户余额是否足够
+    if (dbUser.Balance < requiredBalance) {
+      toast({
+        variant: 'destructive',
+        title: 'Insufficient Balance',
+        description: `You need ${requiredBalance.toFixed(1)} points to generate this audio. Your current balance is ${dbUser.Balance.toFixed(1)} points.`,
+      });
+      return;
+    }
+
     if (!text.trim()) {
       toast({
         variant: 'destructive',
@@ -144,9 +165,8 @@ export default function TextToSpeechPage() {
 
     try {
       // Use the voice ID directly since it already matches the model's voice ID
-      console.log(text, voice, speed);
       const tk = process.env.NEXT_PUBLIC_TK;
-      
+
       // Initial submission to create the prediction
       const submitData = {
         version: "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13",
@@ -156,7 +176,7 @@ export default function TextToSpeechPage() {
           speed: speed
         }
       };
-      
+
       // Create the prediction
       const createResponse = await fetch('/api/replicate/v1/predictions', {
         method: 'POST',
@@ -170,21 +190,21 @@ export default function TextToSpeechPage() {
       if (!createResponse.ok) {
         throw new Error(`Failed to create prediction: ${createResponse.status}`);
       }
-      
+
       const prediction = await createResponse.json();
       console.log('Prediction created:', prediction.id);
-      
+
       // Show a toast to indicate processing has started
       toast({
         title: 'Processing',
         description: 'Generating audio, please wait...',
       });
-      
+
       // Poll for the result
       let completed;
       const maxAttempts = 15; // Maximum number of polling attempts
       const pollingInterval = 2000; // 2 seconds between polls
-      
+
       for (let i = 0; i < maxAttempts; i++) {
         // Get the latest status
         const statusResponse = await fetch(`/api/replicate/v1/predictions/${prediction.id}`, {
@@ -192,40 +212,52 @@ export default function TextToSpeechPage() {
             'Authorization': `Bearer ${tk}`
           }
         });
-        
+
         if (!statusResponse.ok) {
           throw new Error(`Failed to check prediction status: ${statusResponse.status}`);
         }
-        
+
         const latest = await statusResponse.json();
-        console.log(`Polling attempt ${i+1}/${maxAttempts}, status: ${latest.status}`);
-        
+        console.log(`Polling attempt ${i + 1}/${maxAttempts}, status: ${latest.status}`);
+
         // Check if processing is complete
         if (latest.status !== "starting" && latest.status !== "processing") {
           completed = latest;
           break;
         }
-        
+
         // Wait before polling again
         await new Promise(resolve => setTimeout(resolve, pollingInterval));
       }
-      
+
       if (!completed) {
         throw new Error('Processing timed out. Please try again.');
       }
-      
+
       // Check for output
       if (completed.output) {
         setAudioUrl(completed.output);
         setShowGenerated(true);
         setCurrentAudio(null);
-        
+
+        // 计算并扣除用户余额
+        const usedBalance = textLength * 0.1;
+
+        // 更新用户余额
+        await fetch(`/api/user/${session?.user.id}/balance`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ amount: -usedBalance })
+        });
+
         toast({
           title: 'Success',
-          description: 'Your audio has been generated successfully.',
+          description: `Your audio has been generated successfully. Used ${usedBalance.toFixed(1)} points.`,
         });
       } else {
-        throw new Error('Generation failed, please try again.');
+        throw new Error('No output was generated.');
       }
     } catch (error) {
       console.error('Error generating speech:', error);
@@ -268,7 +300,7 @@ export default function TextToSpeechPage() {
     }
 
     const url = currentAudio?.url || audioUrl;
-    
+
     // Create a temporary anchor element
     const a = document.createElement('a');
     a.href = url;
@@ -299,8 +331,8 @@ export default function TextToSpeechPage() {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: !audioUrl 
-          ? 'No audio available to save.' 
+        description: !audioUrl
+          ? 'No audio available to save.'
           : 'You must be logged in to save audio.',
       });
       return;
@@ -359,7 +391,7 @@ export default function TextToSpeechPage() {
     setSpeed(audio.speed);
     setShowGenerated(false);
     setAudioUrl('');
-    
+
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = audio.url;
@@ -483,7 +515,7 @@ export default function TextToSpeechPage() {
                         {t('tts.save')}
                       </Button>
                     )}
-                    
+
                     <Button
                       variant="outline"
                       onClick={resetAll}
@@ -554,7 +586,7 @@ export default function TextToSpeechPage() {
                               });
                               return;
                             }
-                            
+
                             // Copy the audio URL to clipboard
                             navigator.clipboard.writeText(url)
                               .then(() => {
@@ -609,23 +641,23 @@ export default function TextToSpeechPage() {
                           <p className="text-sm line-clamp-2">{audio.text}</p>
                         </div>
                         <div className="flex gap-2 shrink-0">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => loadSavedAudio(audio)}
                           >
                             {t('tts.load')}
                           </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => copyTextToClipboard(audio.text)}
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
-                          <Button 
-                            size="sm" 
-                            variant="destructive" 
+                          <Button
+                            size="sm"
+                            variant="destructive"
                             onClick={() => deleteSavedAudio(audio.id)}
                           >
                             <XCircle className="h-4 w-4" />

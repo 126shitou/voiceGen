@@ -177,19 +177,6 @@ export const translations = {
       bf_emma: 'Emma (British Female)',
       bf_alice: 'Alice (British Female)',
       bf_lily: 'Lily (British Female)',
-      // Japanese - Male
-      jm_kumo: 'Kumo (Japanese Male)',
-      // Japanese - Female
-      jf_tebukuro: 'Tebukuro (Japanese Female)',
-      jf_alpha: 'Alpha (Japanese Female)',
-      jf_gongitsune: 'Gongitsune (Japanese Female)',
-      // Chinese - Male
-      zm_yunxia: 'Yunxia (Chinese Male)',
-      zm_yunxi: 'Yunxi (Chinese Male)',
-      zm_yunyang: 'Yunyang (Chinese Male)',
-      // Chinese - Female
-      zf_xiaobei: 'Xiaobei (Chinese Female)',
-      zf_xiaoni: 'Xiaoni (Chinese Female)',
       // French - Female
       ff_siwis: 'Siwis (French Female)'
     },
@@ -482,20 +469,6 @@ export const translations = {
       bf_emma: '艾玛（英式女声）',
       bf_alice: '爱丽丝（英式女声）',
       bf_lily: '莉莉（英式女声）',
-      // Japanese - Male
-      jm_kumo: '久保（日语男声）',
-      // Japanese - Female
-      jf_tebukuro: '手袋（日语女声）',
-      jf_alpha: '阿尔法（日语女声）',
-      jf_gongitsune: '权狐（日语女声）',
-      // Chinese - Male
-      zm_yunxia: '云夏（中文男声）',
-      zm_yunxi: '云熙（中文男声）',
-      zm_yunyang: '云阳（中文男声）',
-      // Chinese - Female
-      zf_xiaobei: '小贝（中文女声）',
-      zf_xiaoni: '小妮（中文女声）',
-      // French - Female
       ff_siwis: '西维斯（法语女声）'
     },
     features: {
@@ -521,7 +494,7 @@ export const translations = {
     pricing: {
       title: '简单透明的价格',
       subtitle: '选择适合您的计划',
-
+      recommended: '推荐',
       selected: '选择',
       free: {
         title: '免费',
@@ -786,19 +759,6 @@ export const translations = {
       bf_emma: 'エマ（イギリス女性）',
       bf_alice: 'アリス（イギリス女性）',
       bf_lily: 'リリー（イギリス女性）',
-      // Japanese - Male
-      jm_kumo: '雲（日本男性）',
-      // Japanese - Female
-      jf_tebukuro: '手袋（日本女性）',
-      jf_alpha: 'アルファ（日本女性）',
-      jf_gongitsune: '権狐（日本女性）',
-      // Chinese - Male
-      zm_yunxia: '雲夏（中国男性）',
-      zm_yunxi: '雲熙（中国男性）',
-      zm_yunyang: '雲陽（中国男性）',
-      // Chinese - Female
-      zf_xiaobei: '小貝（中国女性）',
-      zf_xiaoni: '小妮（中国女性）',
       // French - Female
       ff_siwis: 'シウィス（フランス女性）'
     },
@@ -1091,19 +1051,7 @@ export const translations = {
       bf_emma: '엠마 (영국 여성)',
       bf_alice: '앨리스 (영국 여성)',
       bf_lily: '릴리 (영국 여성)',
-      // Japanese - Male
-      jm_kumo: '쿠모 (일본 남성)',
-      // Japanese - Female
-      jf_tebukuro: '테부쿠로 (일본 여성)',
-      jf_alpha: '알파 (일본 여성)',
-      jf_gongitsune: '곤기츠네 (일본 여성)',
-      // Chinese - Male
-      zm_yunxia: '윤샤 (중국 남성)',
-      zm_yunxi: '윤시 (중국 남성)',
-      zm_yunyang: '윤양 (중국 남성)',
-      // Chinese - Female
-      zf_xiaobei: '샤오베이 (중국 여성)',
-      zf_xiaoni: '샤오니 (중국 여성)',
+ 
       // French - Female
       ff_siwis: '시위스 (프랑스 여성)'
     },

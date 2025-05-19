@@ -15,16 +15,10 @@ const PRODUCT_TOKEN_LIST = [
 ]
 
 
-
-
 export const POST = async (req: NextRequest, res: NextResponse) => {
-
-
     try {
-
         const rawBody = await req.text()
         const signature = req.headers.get("stripe-signature") || ""
-
 
         const event = stripe.webhooks.constructEvent(
             rawBody,
@@ -33,10 +27,8 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
         )
 
         if (event.type === "checkout.session.completed") {
-
             const session = event.data.object
             const line_items = await stripe.checkout.sessions.listLineItems(session.id);
-
             await connectToDB();
             const user = await User.findById(session.client_reference_id)
             console.log("session", session);

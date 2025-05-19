@@ -74,7 +74,7 @@ export function HeroSection() {
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {user ? (
-            <Link href="#tts-section">
+            <Link href="/text-to-speech">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-white">
                 <Sparkles className="mr-2 h-4 w-4" />
                 {t('hero.tryNow')}

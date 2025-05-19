@@ -75,15 +75,7 @@ export function MobileMenu() {
               >
                 {t('nav.login')}
               </Button>
-              <Button
-                onClick={() => {
-                  signIn('google');
-                  setOpen(false);
-                }}
-                className="bg-primary hover:bg-primary/90 mt-2"
-              >
-                {t('nav.signup')}
-              </Button>
+ 
             </>
           )}
         </nav>
