@@ -19,24 +19,38 @@ import {
   Download,
   Play,
   User as UserIcon,
-  History
+  History,
+  Loader2
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { useToast } from '@/hooks/use-toast';
+import { formatDistance } from 'date-fns';
+import { zhCN } from 'date-fns/locale/zh-CN';
+import { ja } from 'date-fns/locale/ja';
+import { ko } from 'date-fns/locale/ko';
 
+// 订单类型定义
+type Order = {
+  _id: string;
+  userId: string;
+  price: number;
+  product: string;
+  payCurrency?: string;
+  payName?: string;
+  payEmail?: string;
+  createDate: string;
+};
 
-
-const mockOrderHistory = [
-  { id: 'ord_001', product: 'Basic Plan', price: 50, date: '2025-05-15', currency: 'USD' },
-  { id: 'ord_002', product: 'Pro Plan', price: 100, date: '2025-04-20', currency: 'USD' },
-];
-
-const mockVoiceHistory = [
-  { id: 'voice_001', url: 'https://example.com/voice1.mp3', cost: 25, date: '2025-05-18', text: 'Welcome to our voice generation service.' },
-  { id: 'voice_002', url: 'https://example.com/voice2.mp3', cost: 35, date: '2025-05-16', text: 'This is an example of our high-quality voice synthesis technology.' },
-  { id: 'voice_003', url: 'https://example.com/voice3.mp3', cost: 15, date: '2025-05-10', text: 'Thank you for using our service.' },
-  { id: 'voice_004', url: 'https://example.com/voice4.mp3', cost: 30, date: '2025-05-05', text: 'Voice generation has never been easier.' },
-];
+// 语音类型定义
+type Voice = {
+  _id: string;
+  userId: string;
+  voiceUrl: string;
+  cost: number;
+  balance: number;
+  text?: string;
+  createDate: string;
+};
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -45,15 +59,139 @@ export default function DashboardPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { toast } = useToast();
-  const [totalSpent, setTotalSpent] = useState(0)
+  const [totalSpent, setTotalSpent] = useState(0);
+  const [dataLoading, setDataLoading] = useState(false);
 
   // 当前播放的音频
   const [currentAudio, setCurrentAudio] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // 模拟加载数据
-  const [orderHistory, setOrderHistory] = useState(mockOrderHistory);
-  const [voiceHistory, setVoiceHistory] = useState(mockVoiceHistory);
+  // 真实数据
+  const [orderHistory, setOrderHistory] = useState<Order[]>([]);
+  const [voiceHistory, setVoiceHistory] = useState<Voice[]>([]);
+  const [lastOrderDate, setLastOrderDate] = useState<string>('-');
+  const [lastVoiceDate, setLastVoiceDate] = useState<string>('-');
+  const [memberSince, setMemberSince] = useState<string>('-');
+  const [accountAge, setAccountAge] = useState<number>(0);
+
+  // 获取最新用户信息
+  const fetchUserInfo = async () => {
+    if (!user?.id) return;
+
+    try {
+      const userRes = await fetch(`/api/user/${user.id}`);
+      const userData = await userRes.json();
+
+      if (userData.user) {
+        // 使用会话对象的更新方法更新会话
+        // 注意：这里仅更新前端状态，不改变实际会话
+        if (session) {
+          Object.assign(session.user, {
+            balance: userData.user.balance,
+            createDate: userData.user.createDate,
+            updateDate: userData.user.updateDate
+          });
+        }
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('获取用户信息失败:', error);
+      return false;
+    }
+  };
+
+  // 获取用户数据
+  const fetchUserData = async () => {
+    if (!user?.id) return;
+
+    setDataLoading(true);
+    try {
+      // 获取订单历史
+      const orderRes = await fetch(`/api/order/user/${user.id}`);
+      const orderData = await orderRes.json();
+
+      if (orderData.success && orderData.orders) {
+        setOrderHistory(orderData.orders);
+
+        // 计算总支出
+        const total = orderData.orders.reduce((sum: number, order: Order) => sum + (order.price || 0), 0);
+        setTotalSpent(total / 100); // 假设价格以分为单位存储
+
+        // 设置最后订单日期
+        if (orderData.orders.length > 0) {
+          setLastOrderDate(orderData.orders[0].createDate);
+        }
+      }
+
+      // 获取语音历史
+      const voiceRes = await fetch(`/api/voice/user/${user.id}`);
+      const voiceData = await voiceRes.json();
+
+      if (voiceData.success && voiceData.voices) {
+        // 按创建日期降序排序语音历史
+        const sortedVoices = [...voiceData.voices].sort((a, b) => {
+          return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
+        });
+
+        setVoiceHistory(sortedVoices);
+
+        // 设置最后语音生成日期（使用排序后的第一条记录）
+        if (sortedVoices.length > 0) {
+          setLastVoiceDate(sortedVoices[0].createDate);
+        }
+      }
+
+      // 计算账户年龄
+      if (user.createDate) {
+        const createDate = new Date(user.createDate);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - createDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        setAccountAge(diffDays);
+        setMemberSince(user.createDate);
+      }
+    } catch (error) {
+      console.error('获取数据失败:', error);
+      toast({
+        variant: 'destructive',
+        title: t('dashboard.dataLoadFailed'),
+        description: t('dashboard.dataLoadFailedDesc'),
+      });
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  // 刷新数据
+  const refreshData = async () => {
+    setDataLoading(true);
+    try {
+      const userInfoSuccess = await fetchUserInfo();
+      await fetchUserData();
+      if (userInfoSuccess) {
+        toast({
+          title: t('dashboard.refreshData'),
+          description: t('dashboard.dataUpdated'),
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: t('dashboard.dataLoadFailed'),
+          description: t('dashboard.dataLoadFailedDesc'),
+        });
+      }
+    } catch (error) {
+      console.error('刷新用户信息失败:', error);
+      toast({
+        variant: 'destructive',
+        title: t('dashboard.dataLoadFailed'),
+        description: t('dashboard.dataLoadFailedDesc'),
+      });
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   // 播放音频
   const playAudio = (url: string) => {
@@ -97,6 +235,41 @@ export default function DashboardPage() {
       description: t('dashboard.downloadStartedDesc'),
     });
   };
+
+  // 格式化日期
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+
+      // 根据当前语言选择相应的语言包
+      let locale;
+      switch (t('nav.home')) {
+        case '首页': // 中文
+          locale = zhCN;
+          break;
+        case 'ホーム': // 日语
+          locale = ja;
+          break;
+        case '홈': // 韩语
+          locale = ko;
+          break;
+        default: // 英文
+          locale = undefined;
+      }
+
+      return formatDistance(date, now, { addSuffix: true, locale });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  // 加载数据
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserData();
+    }
+  }, [user]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -171,7 +344,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalSpent} {t('dashboard.points')}</div>
-            <p className="text-xs text-muted-foreground mt-2">{t('dashboard.lastPurchase')}: {orderHistory[0]?.date || '-'}</p>
+            <p className="text-xs text-muted-foreground mt-2">{t('dashboard.lastPurchase')}: {lastOrderDate !== '-' ? formatDate(lastOrderDate) : '-'}</p>
           </CardContent>
         </Card>
 
@@ -182,7 +355,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{voiceHistory.length}</div>
-            <p className="text-xs text-muted-foreground mt-2">{t('dashboard.lastGenerated')}: {voiceHistory[0]?.date || '-'}</p>
+            <p className="text-xs text-muted-foreground mt-2">{t('dashboard.lastGenerated')}: {lastVoiceDate !== '-' ? formatDate(lastVoiceDate) : '-'}</p>
           </CardContent>
         </Card>
 
@@ -192,13 +365,34 @@ export default function DashboardPage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">65 {t('dashboard.days')}</div>
-            <p className="text-xs text-muted-foreground mt-2">{t('dashboard.memberSince')}: {user.createDate}</p>
+            <div className="text-2xl font-bold">{accountAge} {t('dashboard.days')}</div>
+            <p className="text-xs text-muted-foreground mt-2">{t('dashboard.memberSince')}: {formatDate(memberSince)}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* 标签页内容 */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">{t('dashboard.title')}</h2>
+        <Button
+          variant="outline"
+          onClick={refreshData}
+          disabled={dataLoading}
+        >
+          {dataLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              {t('dashboard.loading')}
+            </>
+          ) : (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              {t('dashboard.refreshData')}
+            </>
+          )}
+        </Button>
+      </div>
+
       <Tabs defaultValue="voices" className="mb-8">
         <TabsList className="mb-4">
           <TabsTrigger value="voices">
@@ -226,27 +420,27 @@ export default function DashboardPage() {
               {voiceHistory.length > 0 ? (
                 <div className="space-y-4">
                   {voiceHistory.map((voice) => (
-                    <div key={voice.id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg">
+                    <div key={voice._id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg">
                       <div className="mb-2 md:mb-0 md:mr-4 flex-grow">
                         <p className="font-medium truncate max-w-md">{voice.text}</p>
                         <div className="flex items-center mt-1">
-                          <Badge variant="outline" className="mr-2">{voice.cost} {t('dashboard.points')}</Badge>
-                          <span className="text-xs text-muted-foreground">{voice.date}</span>
+                          <Badge variant="outline" className="mr-2">{(voice.cost).toFixed(2)} {t('dashboard.points')}</Badge>
+                          <span className="text-xs text-muted-foreground">{formatDate(voice.createDate)}</span>
                         </div>
                       </div>
                       <div className="flex space-x-2">
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => playAudio(voice.url)}
+                          onClick={() => playAudio(voice.voiceUrl)}
                         >
                           <Play className="h-4 w-4 mr-1" />
-                          {currentAudio === voice.url && isPlaying ? t('dashboard.pause') : t('dashboard.play')}
+                          {currentAudio === voice.voiceUrl && isPlaying ? t('dashboard.pause') : t('dashboard.play')}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => downloadAudio(voice.url)}
+                          onClick={() => downloadAudio(voice.voiceUrl)}
                         >
                           <Download className="h-4 w-4 mr-1" />
                           {t('dashboard.download')}
@@ -286,17 +480,25 @@ export default function DashboardPage() {
               {orderHistory.length > 0 ? (
                 <div className="space-y-4">
                   {orderHistory.map((order) => (
-                    <div key={order.id} className="flex justify-between items-center p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">{order.product}</p>
-                        <div className="flex items-center mt-1">
-                          <Badge className="mr-2">{order.price} {order.currency}</Badge>
-                          <span className="text-xs text-muted-foreground">{order.date}</span>
+                    <div key={order._id} className="p-4 border rounded-lg">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center">
+                          <span className="text-xs text-muted-foreground mr-2">{t('dashboard.paymentName')}:</span>
+                          <span className="font-medium">{order.payName || t('dashboard.noName')}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-xs text-muted-foreground mr-2">{t('dashboard.paymentEmail')}:</span>
+                          <span className="text-sm">{order.payEmail || t('dashboard.noEmail')}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-xs text-muted-foreground mr-2">{t('dashboard.amount')}:</span>
+                          <Badge>{order.price / 100} {order.payCurrency || 'USD'}</Badge>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-xs text-muted-foreground mr-2">{t('dashboard.orderDate')}:</span>
+                          <span className="text-sm">{formatDate(order.createDate)}</span>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
-                        {t('dashboard.viewDetails')}
-                      </Button>
                     </div>
                   ))}
                 </div>
@@ -350,10 +552,7 @@ export default function DashboardPage() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-end space-x-2">
-              <Button variant="outline">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                {t('dashboard.refreshData')}
-              </Button>
+              {/* 刷新按钮已移至Tab外部 */}
             </CardFooter>
           </Card>
         </TabsContent>
