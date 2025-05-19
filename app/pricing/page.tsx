@@ -38,7 +38,7 @@ export default function PricingPage() {
   const payForPlan = async (plan: PlanEnum) => {
 
     if (plan === 'free') {
-      router.push('/');
+      router.push('/text-to-speech');
       return
     }
 
@@ -98,7 +98,7 @@ export default function PricingPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {/* Free Plan */}
         <Card
-          className={`border transition-all duration-300 transform hover:scale-[1.02] ${selectedPlan === 'free' ? "ring-2 ring-primary/50 shadow-md" : "border-border/50 hover:border-border"}`}
+          className={`border transition-all duration-300 transform hover:scale-[1.02] ${selectedPlan === 'free' ? "ring-2 ring-primary/50 shadow-md" : "border-border/50 hover:border-border"} flex flex-col`}
           onClick={() => setSelectedPlan('free')}
         >
           <CardHeader className="text-center">
@@ -111,7 +111,7 @@ export default function PricingPage() {
             <div className="mt-4 text-4xl font-bold">{t('pricing.free.price')}</div>
             <CardDescription className="mt-2">{t('pricing.free.description')}</CardDescription>
           </CardHeader>
-          <CardContent className="mt-2">
+          <CardContent className="mt-2 flex-grow">
             <ul className="space-y-3">
               {t('pricing.free.features').split('\n').map((feature, index) => (
                 <li key={index} className="flex items-start">
@@ -121,7 +121,7 @@ export default function PricingPage() {
               ))}
             </ul>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="mt-auto pt-6">
             <Button onClick={() => payForPlan('free')}
               className={`w-full transition-all ${selectedPlan === 'free' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
             >
@@ -132,7 +132,7 @@ export default function PricingPage() {
 
         {/* Basic Plan */}
         <Card
-          className={`border transition-all duration-300 transform hover:scale-[1.02] ${selectedPlan === 'basic' ? "ring-2 ring-primary shadow-lg" : "border-border/50 hover:border-primary/30"} relative overflow-hidden`}
+          className={`border transition-all duration-300 transform hover:scale-[1.02] ${selectedPlan === 'basic' ? "ring-2 ring-primary shadow-lg" : "border-border/50 hover:border-primary/30"} relative overflow-hidden flex flex-col`}
           onClick={() => setSelectedPlan('basic')}
         >
           {selectedPlan === 'basic' && (
@@ -150,7 +150,7 @@ export default function PricingPage() {
             </div>
             <CardDescription className="mt-2">{t('pricing.basic.description')}</CardDescription>
           </CardHeader>
-          <CardContent className="mt-2">
+          <CardContent className="mt-2 flex-grow">
             <ul className="space-y-3">
               {t('pricing.basic.features').split('\n').map((feature, index) => (
                 <li key={index} className="flex items-start">
@@ -160,7 +160,7 @@ export default function PricingPage() {
               ))}
             </ul>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="mt-auto pt-6">
             <Button onClick={() => payForPlan('basic')}
               className={`w-full transition-all ${selectedPlan === 'basic' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
             >
@@ -171,7 +171,7 @@ export default function PricingPage() {
 
         {/* Pro Plan */}
         <Card
-          className={`relative transition-all duration-300 transform hover:scale-[1.02] ${selectedPlan === 'pro' ? "ring-2 ring-primary shadow-xl border-primary" : "border-primary/50"} overflow-hidden`}
+          className={`relative transition-all duration-300 transform hover:scale-[1.02] ${selectedPlan === 'pro' ? "ring-2 ring-primary shadow-xl border-primary" : "border-primary/50"} overflow-hidden flex flex-col`}
           onClick={() => setSelectedPlan('pro')}
         >
           <div className="absolute top-0 right-0 left-0 h-2 bg-primary"></div>
@@ -193,7 +193,7 @@ export default function PricingPage() {
             </div>
             <CardDescription className="mt-2">{t('pricing.pro.description')}</CardDescription>
           </CardHeader>
-          <CardContent className="mt-2">
+          <CardContent className="mt-2 flex-grow">
             <ul className="space-y-3">
               {t('pricing.pro.features').split('\n').map((feature, index) => (
                 <li key={index} className="flex items-start">
@@ -203,12 +203,12 @@ export default function PricingPage() {
               ))}
             </ul>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="mt-auto pt-6">
             <Button
               onClick={() => payForPlan('pro')}
               className={`w-full transition-all bg-primary hover:bg-primary/90 text-primary-foreground ${selectedPlan === 'pro' ? "shadow-lg" : ""}`}
             >
-              {selectedPlan === 'pro' ? t('pricing.pro.cta') : t('pricing.pro.cta')}
+              {selectedPlan === 'pro' ? t('pricing.selected') : t('pricing.pro.cta')}
             </Button>
           </CardFooter>
         </Card>

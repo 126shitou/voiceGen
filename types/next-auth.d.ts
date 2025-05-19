@@ -3,10 +3,12 @@ declare module "next-auth" {
     interface Session {
         user: {
             id?: string
-            name?: string | null
-            email?: string | null
+            name?: string
+            email?: string
+            balance: number
             image?: string | null
-            CrateDate?: string | null
+            thirdPartId: string | null
+            createDate?: string | null
             updateDate: string | null
         }
     }
@@ -14,9 +16,10 @@ declare module "next-auth" {
         id?: string
         name?: string
         email?: string
+        balance: number
         image?: string | null
-        image?: string | null
-        CrateDate?: string | null
+        thirdPartId: string | null
+        createDate?: string | null
         updateDate: string | null
     }
 }
