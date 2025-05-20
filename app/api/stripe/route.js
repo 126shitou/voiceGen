@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "")
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "")
 
 
 const PRICE_ID_LIST = [
@@ -9,13 +9,12 @@ const PRICE_ID_LIST = [
 ]
 
 export const POST = async (req, res) => {
-
     if (req.method === "POST") {
         try {
             const { userId, type } = await req.json()
- 
+
             let price_id = PRICE_ID_LIST.find(i => i.key === type)?.value
-             const params = {
+            const params = {
                 submit_type: 'pay',
                 mode: 'payment',
                 payment_method_types: ['card'],
@@ -32,13 +31,11 @@ export const POST = async (req, res) => {
             }
             // Create Checkout Sessions from body params.
             const session = await stripe.checkout.sessions.create(params);
-             
+
             return new Response(JSON.stringify(session), { status: 200 });
         } catch (err) {
-            return NextResponse.json(
-                { error: err.message },
-                { status: err.statusCode || 500 }
-            )
+            return new Response("Failed to checkout", { status: 500 });
+
         }
     } else {
         res.setHeader("Allow", "POST");
