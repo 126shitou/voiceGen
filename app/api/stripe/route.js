@@ -40,5 +40,6 @@ export const POST = async (req, res) => {
     } else {
         res.setHeader("Allow", "POST");
         res.status(405).end("Method Not Allowed");
+        return new Response("Method Not Allowed", { status: 405 })
     }
 }
