@@ -16,8 +16,8 @@ const PRODUCT_TOKEN_LIST = [
     { key: 'prod_SL2Wik94PZXSNa', value: 700 }
 ]
 
+export async function POST(req: NextRequest, res: NextResponse) {
 
-export const POST = async (req: NextRequest, res: NextResponse) => {
     try {
         const rawBody = await req.text()
         const signature = req.headers.get("stripe-signature") || ""
@@ -55,12 +55,13 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
                 await user.save();
             }
 
-            return new Response(JSON.stringify({ received: true }), { status: 200 })
+            return NextResponse.json({ received: true }, { status: 200 })
+
         }
 
     } catch (e) {
         console.log("error", e);
-        return new Response(JSON.stringify({ error: 'Failed to update' }), { 
+        return new NextResponse(JSON.stringify({ error: 'Failed to update' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
