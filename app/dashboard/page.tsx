@@ -10,6 +10,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   VolumeX,
   Wallet,
   CreditCard,
@@ -20,7 +30,8 @@ import {
   Play,
   User as UserIcon,
   History,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { useToast } from '@/hooks/use-toast';
@@ -73,6 +84,10 @@ export default function DashboardPage() {
   const [lastVoiceDate, setLastVoiceDate] = useState<string>('-');
   const [memberSince, setMemberSince] = useState<string>('-');
   const [accountAge, setAccountAge] = useState<number>(0);
+
+  // 删除确认对话框状态
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [voiceToDelete, setVoiceToDelete] = useState<string | null>(null);
 
   // 获取最新用户信息
   const fetchUserInfo = async () => {
@@ -235,6 +250,63 @@ export default function DashboardPage() {
       description: t('dashboard.downloadStartedDesc'),
     });
   };
+  
+  // 处理删除按钮点击
+  const handleDeleteClick = (voiceId: string) => {
+    setVoiceToDelete(voiceId);
+    setDeleteDialogOpen(true);
+  };
+  // TODO 添加提示 xx小时就会删除文件
+  // TODO voice增加text
+  // 删除语音记录
+  const deleteVoice = async () => {
+    if (!voiceToDelete || !user?.id) return;
+    
+    try {
+      const response = await fetch('/api/voice/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          voiceId: voiceToDelete,
+          userId: user.id 
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // 更新语音历史
+        setVoiceHistory(data.voices);
+        
+        // 更新最后语音生成日期
+        if (data.voices.length > 0) {
+          setLastVoiceDate(data.voices[0].createDate);
+        } else {
+          setLastVoiceDate('-');
+        }
+        
+        toast({
+          title: t('dashboard.deleteSuccess'),
+          description: t('dashboard.deleteSuccessDesc'),
+        });
+      } else {
+        throw new Error(data.error || 'Failed to delete voice record');
+      }
+    } catch (error) {
+      console.error('删除语音记录失败:', error);
+      toast({
+        variant: 'destructive',
+        title: t('dashboard.deleteError'),
+        description: t('dashboard.deleteErrorDesc'),
+      });
+    } finally {
+      // 重置状态
+      setVoiceToDelete(null);
+      setDeleteDialogOpen(false);
+    }
+  };
 
   // 格式化日期
   const formatDate = (dateString: string) => {
@@ -302,8 +374,26 @@ export default function DashboardPage() {
 
   return (
     <div className="container py-10 px-4 mx-auto">
+      {/* 删除确认对话框 */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('dashboard.deleteConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('dashboard.deleteConfirmDesc')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('dashboard.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteVoice} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t('dashboard.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
       {/* 隐藏的音频播放器 */}
-      <audio id="audio-player" className="hidden" />
+      <audio id="audio-player" onEnded={() => setIsPlaying(false)} className="hidden" />
 
       {/* 用户信息和欢迎消息 */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
@@ -444,6 +534,15 @@ export default function DashboardPage() {
                         >
                           <Download className="h-4 w-4 mr-1" />
                           {t('dashboard.download')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => handleDeleteClick(voice._id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          {t('dashboard.delete')}
                         </Button>
                       </div>
                     </div>
