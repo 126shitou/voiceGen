@@ -2,7 +2,6 @@ import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "")
 
-
 const PRICE_ID_LIST = [
     { key: 'basic', value: 'price_1RQMR0Psq011JgrIqqzrzjPR' },
     { key: 'pro', value: 'price_1RQMRLPsq011JgrImNCwJTre' },
@@ -18,8 +17,7 @@ export const POST = async (req, res) => {
                 submit_type: 'pay',
                 mode: 'payment',
                 payment_method_types: ['card'],
-                //TODO 修改为userId
-                client_reference_id: '682b11acbdba12c71f53c468',
+                client_reference_id: userId,
                 line_items: [
                     {
                         price: price_id,
