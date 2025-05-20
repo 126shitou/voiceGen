@@ -1,4 +1,5 @@
-import type { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
 import Stripe from 'stripe';
 import { connectToDB } from '@/mongodb/database';
 import User from '@/models/User'
@@ -59,6 +60,10 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     } catch (e) {
         console.log("error", e);
+        return NextResponse.json(
+            { error: "Failed to add to collection" },
+            { status: 500 }
+        );
     }
 
 }
