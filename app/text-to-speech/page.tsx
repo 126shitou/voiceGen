@@ -159,40 +159,13 @@ export default function TextToSpeechPage() {
     setSpeed(value[0]);
   };
 
-
   const generateSpeech = async () => {
-    let voiceUrl = ''
     // 检查用户是否登录
     if (!session?.user?.id) {
       toast({
         variant: 'destructive',
         title: t('tts.authRequired'),
         description: t('tts.mustBeLoggedIn'),
-      });
-      return;
-    }
-
-    // 获取用户信息和余额
-    let res = await fetch(`/api/user/${session.user.id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    let { user: dbUser } = await res.json()
-
-    // 计算所需费用 - 每个字符0.1点
-    const textLength = text.trim().length;
-    const requiredBalance = textLength * 0.1;
-
-    // 检查用户余额是否足够
-    if (dbUser.balance < requiredBalance) {
-      toast({
-        variant: 'destructive',
-        title: t('tts.insufficientBalance'),
-        description: t('tts.balanceNeeded')
-          .replace('{0}', requiredBalance.toFixed(1))
-          .replace('{1}', dbUser.balance.toFixed(1)),
       });
       return;
     }
@@ -209,120 +182,63 @@ export default function TextToSpeechPage() {
     setIsGenerating(true);
 
     try {
-      // Use the voice ID directly since it already matches the model's voice ID
-      const tk = process.env.NEXT_PUBLIC_TK;
-
-      // Create the prediction
-      const createResponse = await fetch('/api/replicate/v1/predictions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${tk}`
-        },
-        body: JSON.stringify({
-          version: "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13",
-          input: {
-            text: text,
-            voice: voice,
-            speed: speed
-          }
-        }),
-      });
-
-      if (!createResponse.ok) {
-        throw new Error(`Failed to create prediction: ${createResponse.status}`);
-      }
-
-      const prediction = await createResponse.json();
-      console.log('Prediction created:', prediction.id);
-
-      // Show a toast to indicate processing has started
+      // 显示处理中的提示
       toast({
         title: t('tts.processing'),
         description: t('tts.generatingAudio'),
       });
 
-      // Poll for the result
-      let completed;
-      const maxAttempts = 15; // Maximum number of polling attempts
-      const pollingInterval = 2000; // 2 seconds between polls
+      // 调用服务端API生成语音
+      const response = await fetch('/api/predictions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: session.user.id,
+          text: text,
+          voice: voice,
+          speed: speed,
+        }),
+      });
 
-      for (let i = 0; i < maxAttempts; i++) {
-        // Get the latest status
-        const statusResponse = await fetch(`/api/replicate/v1/predictions/${prediction.id}`, {
-          headers: {
-            'Authorization': `Bearer ${tk}`
-          }
-        });
+      if (!response.ok) {
+        // 处理错误响应
+        const errorData = await response.json();
 
-        if (!statusResponse.ok) {
-          throw new Error(`Failed to check prediction status: ${statusResponse.status}`);
+        // 处理余额不足的情况
+        if (response.status === 402 && errorData.error === 'Insufficient balance') {
+          toast({
+            variant: 'destructive',
+            title: t('tts.insufficientBalance'),
+            description: t('tts.balanceNeeded')
+              .replace('{0}', errorData.requiredBalance)
+              .replace('{1}', errorData.currentBalance),
+          });
+          return;
         }
 
-        const latest = await statusResponse.json();
-        console.log(`Polling attempt ${i + 1}/${maxAttempts}, status: ${latest.status}`);
-
-        // Check if processing is complete
-        if (latest.status !== "starting" && latest.status !== "processing") {
-          completed = latest;
-          break;
-        }
-
-        // Wait before polling again
-        await new Promise(resolve => setTimeout(resolve, pollingInterval));
+        throw new Error(errorData.error || `Failed with status: ${response.status}`);
       }
 
-      if (!completed) {
-        throw new Error('Processing timed out. Please try again.');
-      }
+      // 处理成功响应
+      const result = await response.json();
 
-      // Check for output
-      if (completed.output) {
-        setAudioUrl(completed.output);
-        setShowGenerated(true);
-        setCurrentAudio(null);
+      // 更新UI
+      setAudioUrl(result.output);
+      setShowGenerated(true);
+      setCurrentAudio(null);
 
-        // 计算并扣除用户余额
-        const usedBalance = (textLength * 0.1).toFixed(2);
-
-        // 更新用户余额
-        let balanceData = await fetch(`/api/user/${session?.user.id}/balance`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ amount: -usedBalance })
-        });
-
-        let { balance } = await balanceData.json()
-
-        toast({
-          title: t('tts.success'),
-          description: t('tts.audioGenerated').replace('{0}', usedBalance),
-        });
-
-        await fetch(`/api/voice/add`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: session?.user.id,
-            voiceUrl: completed.output,
-            text: text, // 添加文本内容
-            cost: usedBalance,
-            balance: balance,
-            createDate: getCurrentTime()
-          })
-        })
-      } else {
-        throw new Error('No output was generated.');
-      }
+      // 显示成功消息
+      toast({
+        title: t('tts.success'),
+        description: t('tts.audioGenerated').replace('{0}', result.usedBalance),
+      });
     } catch (error) {
       console.error('Error generating speech:', error);
       toast({
         variant: 'destructive',
-        title: 'Error',
+        title: t('tts.error'),
         description: error instanceof Error ? error.message : 'Failed to generate speech. Please try again.',
       });
     } finally {

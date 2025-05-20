@@ -199,7 +199,9 @@ export const translations = {
       couldNotPlayAudio: 'Could not play the audio. Please try again.',
       unexpectedPlaybackError: 'An unexpected error occurred while trying to play the audio.',
       failedToGenerateSpeech: 'Failed to generate speech. Please try again.',
-      audioGenerated: 'Audio generated successfully. Used {0} points.'
+      audioGenerated: 'Audio generated successfully. Used {0} points.',
+      processing: 'Processing',
+      generatingAudio: 'Generating your audio, please wait...'
     },
     home: {
       ttsPromo: {
@@ -609,7 +611,9 @@ export const translations = {
       couldNotPlayAudio: '无法播放音频。请重试。',
       unexpectedPlaybackError: '播放音频时发生意外错误。',
       failedToGenerateSpeech: '生成语音失败。请重试。',
-      audioGenerated: '音频生成成功。使用了 {0} 点数。'
+      audioGenerated: '音频生成成功。使用了 {0} 点数。',
+      processing: '处理中',
+      generatingAudio: '正在生成您的音频，请稍候...'
     },
     home: {
       ttsPromo: {
@@ -1016,7 +1020,9 @@ export const translations = {
       couldNotPlayAudio: '音声を再生できませんでした。もう一度お試しください。',
       unexpectedPlaybackError: '音声の再生中に予期しないエラーが発生しました。',
       failedToGenerateSpeech: '音声の生成に失敗しました。もう一度お試しください。',
-      audioGenerated: '音声が正常に生成されました。{0} ポイントを使用しました。'
+      audioGenerated: '音声が正常に生成されました。{0} ポイントを使用しました。',
+      processing: '処理中',
+      generatingAudio: '音声を生成しています、お待ちください...'
     },
     home: {
       ttsPromo: {
@@ -1425,7 +1431,9 @@ export const translations = {
       couldNotPlayAudio: '오디오를 재생할 수 없습니다. 다시 시도해 주세요.',
       unexpectedPlaybackError: '오디오 재생 중 예기치 않은 오류가 발생했습니다.',
       failedToGenerateSpeech: '음성 생성에 실패했습니다. 다시 시도해 주세요.',
-      audioGenerated: '오디오가 성공적으로 생성되었습니다. {0} 포인트를 사용했습니다.'
+      audioGenerated: '오디오가 성공적으로 생성되었습니다. {0} 포인트를 사용했습니다.',
+      processing: '처리 중',
+      generatingAudio: '오디오를 생성하고 있습니다. 잠시만 기다려 주세요...'
     },
     home: {
       ttsPromo: {
