@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import {
   VolumeX,
-  Wallet,
   CreditCard,
   ListMusic,
   Calendar,
@@ -31,7 +30,7 @@ import {
   User as UserIcon,
   History,
   Loader2,
-  Trash2
+  Trash2, CircleDollarSign
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { useToast } from '@/hooks/use-toast';
@@ -250,7 +249,7 @@ export default function DashboardPage() {
       description: t('dashboard.downloadStartedDesc'),
     });
   };
-  
+
   // 处理删除按钮点击
   const handleDeleteClick = (voiceId: string) => {
     setVoiceToDelete(voiceId);
@@ -260,32 +259,32 @@ export default function DashboardPage() {
   // 删除语音记录
   const deleteVoice = async () => {
     if (!voiceToDelete || !user?.id) return;
-    
+
     try {
       const response = await fetch('/api/voice/delete', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           voiceId: voiceToDelete,
-          userId: user.id 
+          userId: user.id
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // 更新语音历史
         setVoiceHistory(data.voices);
-        
+
         // 更新最后语音生成日期
         if (data.voices.length > 0) {
           setLastVoiceDate(data.voices[0].createDate);
         } else {
           setLastVoiceDate('-');
         }
-        
+
         toast({
           title: t('dashboard.deleteSuccess'),
           description: t('dashboard.deleteSuccessDesc'),
@@ -390,7 +389,7 @@ export default function DashboardPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
+
       {/* 隐藏的音频播放器 */}
       <audio id="audio-player" onEnded={() => setIsPlaying(false)} className="hidden" />
 
@@ -417,7 +416,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">{t('dashboard.accountBalance')}</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
+            <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{user.balance} {t('dashboard.points')}</div>
