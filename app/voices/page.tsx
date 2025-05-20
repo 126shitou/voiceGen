@@ -19,19 +19,19 @@ const allVoices = [
   { id: 'bf_emma', nameKey: 'voice.bf_emma', gender: 'female', premium: false, sample: '#', avatar: 'emma', rating: 4.7, language: 'en' },
   { id: 'bf_alice', nameKey: 'voice.bf_alice', gender: 'female', premium: false, sample: '#', avatar: 'alice', rating: 4.8, language: 'en' },
   { id: 'bf_lily', nameKey: 'voice.bf_lily', gender: 'female', premium: true, sample: '#', avatar: 'lily', rating: 4.9, language: 'en' },
-  // Japanese - Male
-  { id: 'jm_kumo', nameKey: 'voice.jm_kumo', gender: 'male', premium: false, sample: '#', avatar: 'kumo', rating: 4.7, language: 'ja' },
-  // Japanese - Female
-  { id: 'jf_tebukuro', nameKey: 'voice.jf_tebukuro', gender: 'female', premium: false, sample: '#', avatar: 'tebukuro', rating: 4.8, language: 'ja' },
-  { id: 'jf_alpha', nameKey: 'voice.jf_alpha', gender: 'female', premium: true, sample: '#', avatar: 'alpha', rating: 4.9, language: 'ja' },
-  { id: 'jf_gongitsune', nameKey: 'voice.jf_gongitsune', gender: 'female', premium: true, sample: '#', avatar: 'gongitsune', rating: 4.8, language: 'ja' },
-  // Chinese - Male
-  { id: 'zm_yunxia', nameKey: 'voice.zm_yunxia', gender: 'male', premium: false, sample: '#', avatar: 'yunxia', rating: 4.8, language: 'zh' },
-  { id: 'zm_yunxi', nameKey: 'voice.zm_yunxi', gender: 'male', premium: true, sample: '#', avatar: 'yunxi', rating: 4.9, language: 'zh' },
-  { id: 'zm_yunyang', nameKey: 'voice.zm_yunyang', gender: 'male', premium: true, sample: '#', avatar: 'yunyang', rating: 4.8, language: 'zh' },
-  // Chinese - Female
-  { id: 'zf_xiaobei', nameKey: 'voice.zf_xiaobei', gender: 'female', premium: false, sample: '#', avatar: 'xiaobei', rating: 4.7, language: 'zh' },
-  { id: 'zf_xiaoni', nameKey: 'voice.zf_xiaoni', gender: 'female', premium: true, sample: '#', avatar: 'xiaoni', rating: 4.9, language: 'zh' },
+  // // Japanese - Male
+  // { id: 'jm_kumo', nameKey: 'voice.jm_kumo', gender: 'male', premium: false, sample: '#', avatar: 'kumo', rating: 4.7, language: 'ja' },
+  // // Japanese - Female
+  // { id: 'jf_tebukuro', nameKey: 'voice.jf_tebukuro', gender: 'female', premium: false, sample: '#', avatar: 'tebukuro', rating: 4.8, language: 'ja' },
+  // { id: 'jf_alpha', nameKey: 'voice.jf_alpha', gender: 'female', premium: true, sample: '#', avatar: 'alpha', rating: 4.9, language: 'ja' },
+  // { id: 'jf_gongitsune', nameKey: 'voice.jf_gongitsune', gender: 'female', premium: true, sample: '#', avatar: 'gongitsune', rating: 4.8, language: 'ja' },
+  // // Chinese - Male
+  // { id: 'zm_yunxia', nameKey: 'voice.zm_yunxia', gender: 'male', premium: false, sample: '#', avatar: 'yunxia', rating: 4.8, language: 'zh' },
+  // { id: 'zm_yunxi', nameKey: 'voice.zm_yunxi', gender: 'male', premium: true, sample: '#', avatar: 'yunxi', rating: 4.9, language: 'zh' },
+  // { id: 'zm_yunyang', nameKey: 'voice.zm_yunyang', gender: 'male', premium: true, sample: '#', avatar: 'yunyang', rating: 4.8, language: 'zh' },
+  // // Chinese - Female
+  // { id: 'zf_xiaobei', nameKey: 'voice.zf_xiaobei', gender: 'female', premium: false, sample: '#', avatar: 'xiaobei', rating: 4.7, language: 'zh' },
+  // { id: 'zf_xiaoni', nameKey: 'voice.zf_xiaoni', gender: 'female', premium: true, sample: '#', avatar: 'xiaoni', rating: 4.9, language: 'zh' },
   // French - Female
   { id: 'ff_siwis', nameKey: 'voice.ff_siwis', gender: 'female', premium: true, sample: '#', avatar: 'siwis', rating: 4.8, language: 'fr' },
 ];

@@ -136,12 +136,21 @@ export const translations = {
       generateToSave: 'Generate some audio and save it to your library',
       generated: 'Generated Audio',
       signInPrompt: 'Sign in to access more voices and features',
-      charactersCount: 'Characters: {count}'
+      charactersCount: 'Characters: {count}',
+      deleteConfirmTitle: 'Delete Recording',
+      confirmDelete: 'Are you sure you want to delete this recording?',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      saveLocationTitle: 'Save Location',
+      saveLocationDescription: 'Where would you like to save this recording?',
+      saveToLocal: 'Save to Local Library',
+      saveToCloud: 'Save to Cloud Collection',
+      saveToBoth: 'Save to Both'
     },
     home: {
       ttsPromo: {
         title: 'Try Our Advanced Text to Speech Tool',
-        description: 'Convert your text into natural-sounding speech with multiple voices, languages, and customization options',
+        description: 'Convert your text into qnatural-sounding speech with multiple voices, languages, and customization options',
         button: 'Try Text to Speech'
       },
       useCases: {
@@ -479,7 +488,16 @@ export const translations = {
       generateToSave: '生成一些音频并保存到您的库中',
       generated: '已生成的音频',
       signInPrompt: '登录以访问更多声音和功能',
-      charactersCount: '字符数: {count}'
+      charactersCount: '字符数: {count}',
+      deleteConfirmTitle: '删除录音',
+      confirmDelete: '确定要删除这个录音吗？',
+      cancel: '取消',
+      delete: '删除',
+      saveLocationTitle: '保存位置',
+      saveLocationDescription: '您想将录音保存到哪里？',
+      saveToLocal: '保存到本地库',
+      saveToCloud: '保存到云端集合',
+      saveToBoth: '同时保存到两处'
     },
     home: {
       ttsPromo: {
@@ -819,7 +837,16 @@ export const translations = {
       generateToSave: '音声を生成してライブラリに保存してください',
       generated: '生成された音声',
       signInPrompt: 'サインインしてより多くの音声と機能にアクセス',
-      charactersCount: '文字数: {count}'
+      charactersCount: '文字数: {count}',
+      deleteConfirmTitle: '録音を削除',
+      confirmDelete: 'この録音を削除してもよろしいですか？',
+      cancel: 'キャンセル',
+      delete: '削除',
+      saveLocationTitle: '保存場所',
+      saveLocationDescription: 'この録音をどこに保存しますか？',
+      saveToLocal: 'ローカルライブラリに保存',
+      saveToCloud: 'クラウドコレクションに保存',
+      saveToBoth: '両方に保存'
     },
     home: {
       ttsPromo: {
@@ -1161,7 +1188,16 @@ export const translations = {
       generateToSave: '오디오를 생성하고 라이브러리에 저장하세요',
       generated: '생성된 오디오',
       signInPrompt: '더 많은 음성과 기능에 액세스하려면 로그인하세요',
-      charactersCount: '글자 수: {count}'
+      charactersCount: '글자 수: {count}',
+      deleteConfirmTitle: '녹음 삭제',
+      confirmDelete: '이 녹음을 삭제하시겠습니까?',
+      cancel: '취소',
+      delete: '삭제',
+      saveLocationTitle: '저장 위치',
+      saveLocationDescription: '이 녹음을 어디에 저장하시겠습니까?',
+      saveToLocal: '로컬 라이브러리에 저장',
+      saveToCloud: '클라우드 콜렉션에 저장',
+      saveToBoth: '둘 다에 저장'
     },
     home: {
       ttsPromo: {

@@ -22,6 +22,12 @@ const UserSchema = new Schema({
         type: Number,
         default: 0
     },
+    
+    collect: {
+        type: [String],
+        default: []
+    },
+    
     createDate: {
         type: Date,
     },
