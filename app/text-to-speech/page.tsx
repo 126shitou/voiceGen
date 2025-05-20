@@ -650,7 +650,7 @@ export default function TextToSpeechPage() {
   }, [currentAudio, audioUrl]);
 
   return (
-    <div className="container py-10">
+    <div className="container py-10 mx-auto">
       {/* 全局音频元素 */}
       <audio
         ref={audioRef}
@@ -960,7 +960,7 @@ export default function TextToSpeechPage() {
                     <CardContent className="p-4">
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 flex justify-center">
                             <p className="text-sm text-muted-foreground">{new Date().toLocaleString()}</p>
                           </div>
                           <div className="flex gap-2">
