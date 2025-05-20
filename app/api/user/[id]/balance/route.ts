@@ -27,8 +27,9 @@ export const POST = async (req: NextRequest, { params }: IParams) => {
         }
 
         // 更新用户余额
-        user.balance += Number(amount);
-
+        let newBalance = (user.balance + Number(amount)).toFixed(2)
+        user.balance = newBalance
+        
         // 确保余额不为负数
         if (user.balance < 0) {
             user.balance = 0;
@@ -36,7 +37,7 @@ export const POST = async (req: NextRequest, { params }: IParams) => {
 
         // 保存更新后的用户信息
         await user.save();
- 
+
         return new Response(JSON.stringify({
             success: true,
             balance: user.balance
