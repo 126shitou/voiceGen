@@ -61,6 +61,8 @@ export async function POST(req: NextRequest) {
 
             return new Response('success', { status: 200 })
         }
+        return new Response('method not found', { status: 404 })
+
 
     } catch (e) {
         console.log("error", e);
