@@ -78,14 +78,14 @@ export default function TextToSpeechPage() {
   const [audioUrl, setAudioUrl] = useState('');
   const [showGenerated, setShowGenerated] = useState(false);
   const [savedAudios, setSavedAudios] = useState<SavedAudio[]>([]);
-  const [collectionAudios, setCollectionAudios] = useState<{url: string, id: string}[]>([]);
+  const [collectionAudios, setCollectionAudios] = useState<{ url: string, id: string }[]>([]);
   const [activeTab, setActiveTab] = useState('generate');
   const [currentAudio, setCurrentAudio] = useState<SavedAudio | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [audioToDelete, setAudioToDelete] = useState<{id: string, url?: string, isCloud?: boolean} | null>(null);
+  const [audioToDelete, setAudioToDelete] = useState<{ id: string, url?: string, isCloud?: boolean } | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [audioToSave, setAudioToSave] = useState<{text: string, voice: string, speed: number, url: string} | null>(null);
+  const [audioToSave, setAudioToSave] = useState<{ text: string, voice: string, speed: number, url: string } | null>(null);
 
   // Set initial voice based on language
   useEffect(() => {
@@ -125,11 +125,11 @@ export default function TextToSpeechPage() {
       fetchUserCollection();
     }
   }, [user]);
-  
+
   // Fetch user's collection from database
   const fetchUserCollection = async () => {
     if (!user?.id) return;
-    
+
     try {
       const response = await fetch(`/api/user/${user.id}/collect`);
       if (response.ok) {
@@ -307,6 +307,7 @@ export default function TextToSpeechPage() {
           body: JSON.stringify({
             userId: session?.user.id,
             voiceUrl: completed.output,
+            text: text, // 添加文本内容
             cost: usedBalance,
             balance: balance,
             createDate: getCurrentTime()
@@ -338,29 +339,29 @@ export default function TextToSpeechPage() {
       });
       return;
     }
-    
+
     try {
       // 如果提供了特定URL，则播放该URL
       if (audioUrlToPlay) {
         // 先暂停当前播放，避免多个音频同时播放
         audioRef.current.pause();
-        
+
         // 设置新的音频源
         audioRef.current.src = audioUrlToPlay;
         audioRef.current.load(); // 确保重新加载音频
         setAudioUrl(audioUrlToPlay);
         setCurrentAudio(null);
-        
+
         // 只有在需要切换到生成标签页时才显示生成的音频播放器
         if (switchToGenerate) {
           setShowGenerated(true);
           setActiveTab('generate');
         }
       }
-      
+
       // 播放音频
       const playPromise = audioRef.current.play();
-      
+
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
@@ -444,7 +445,7 @@ export default function TextToSpeechPage() {
       });
       return;
     }
-    
+
     setAudioToSave({
       text,
       voice,
@@ -453,12 +454,12 @@ export default function TextToSpeechPage() {
     });
     setSaveDialogOpen(true);
   };
-  
+
   const saveToLocal = async () => {
     if (!audioToSave || !user) return;
-    
+
     const { text, voice, speed, url } = audioToSave;
-    
+
     const newAudio: SavedAudio = {
       id: `audio-${Date.now()}`,
       text,
@@ -475,22 +476,21 @@ export default function TextToSpeechPage() {
     if (typeof window !== 'undefined') {
       localStorage.setItem(`savedAudios-${user.id}`, JSON.stringify(updatedAudios));
     }
-    
+
     toast({
       title: 'Audio saved locally',
       description: 'Your audio has been saved to your local library.',
     });
-    
+
     // Reset state
     setAudioToSave(null);
     setSaveDialogOpen(false);
   };
-  
   const saveToCloud = async () => {
     if (!audioToSave || !user) return;
-    
+
     const { url } = audioToSave;
-    
+
     // Save to user's collection in database
     try {
       const response = await fetch(`/api/user/${user.id}/collect`, {
@@ -500,7 +500,7 @@ export default function TextToSpeechPage() {
         },
         body: JSON.stringify({ url })
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         // 将URL数组转换为对象数组，添加唯一ID
@@ -509,7 +509,7 @@ export default function TextToSpeechPage() {
           id: `cloud-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
         }));
         setCollectionAudios(formattedCollection);
-        
+
         toast({
           title: 'Audio saved to cloud',
           description: 'Your audio has been saved to your cloud collection.',
@@ -523,12 +523,12 @@ export default function TextToSpeechPage() {
         description: 'Failed to save to cloud collection.',
       });
     }
-    
+
     // Reset state
     setAudioToSave(null);
     setSaveDialogOpen(false);
   };
-  
+
   const saveToBoth = async () => {
     await saveToLocal();
     await saveToCloud();
@@ -541,9 +541,9 @@ export default function TextToSpeechPage() {
 
   const deleteSavedAudio = async () => {
     if (!audioToDelete) return;
-    
+
     const { id, url, isCloud } = audioToDelete;
-    
+
     if (isCloud && url) {
       // Delete from cloud collection
       try {
@@ -554,7 +554,7 @@ export default function TextToSpeechPage() {
           },
           body: JSON.stringify({ url })
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           // 将URL数组转换为对象数组，添加唯一ID
@@ -580,18 +580,18 @@ export default function TextToSpeechPage() {
       // Delete from local library
       const updatedAudios = savedAudios.filter(audio => audio.id !== id);
       setSavedAudios(updatedAudios);
-      
+
       // Update localStorage
       if (typeof window !== 'undefined' && user) {
         localStorage.setItem(`savedAudios-${user.id}`, JSON.stringify(updatedAudios));
       }
-      
+
       toast({
         title: 'Audio deleted',
         description: 'The audio has been removed from your local library.',
       });
     }
-    
+
     // Reset state
     setAudioToDelete(null);
     setDeleteDialogOpen(false);
@@ -610,7 +610,7 @@ export default function TextToSpeechPage() {
       audioRef.current.src = audio.url;
       setIsPlaying(false);
     }
-    
+
     // Switch to Generate Audio tab
     setActiveTab('generate');
   };
@@ -641,7 +641,7 @@ export default function TextToSpeechPage() {
       }
     };
   }, []);
-  
+
   // 当currentAudio或audioUrl变化时更新音频源
   useEffect(() => {
     if (audioRef.current) {
@@ -652,13 +652,13 @@ export default function TextToSpeechPage() {
   return (
     <div className="container py-10">
       {/* 全局音频元素 */}
-      <audio 
-        ref={audioRef} 
+      <audio
+        ref={audioRef}
         onEnded={handleAudioEnded}
         preload="auto"
         style={{ display: 'none' }}
       />
-      
+
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -675,7 +675,7 @@ export default function TextToSpeechPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
+
       <AlertDialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -947,7 +947,7 @@ export default function TextToSpeechPage() {
                   </Card>
                 ))
               )}
-              
+
               <h3 className="text-xl font-medium mt-8 mb-4">Cloud Collection</h3>
               {collectionAudios.length === 0 ? (
                 <div className="text-center py-6">
@@ -999,7 +999,7 @@ export default function TextToSpeechPage() {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2 bg-accent rounded-lg p-3">
                           <div className="flex items-center space-x-1">
                             {[...Array(5)].map((_, i) => (

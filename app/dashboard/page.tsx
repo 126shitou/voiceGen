@@ -257,7 +257,6 @@ export default function DashboardPage() {
     setDeleteDialogOpen(true);
   };
   // TODO 添加提示 xx小时就会删除文件
-  // TODO voice增加text
   // 删除语音记录
   const deleteVoice = async () => {
     if (!voiceToDelete || !user?.id) return;
@@ -512,7 +511,13 @@ export default function DashboardPage() {
                   {voiceHistory.map((voice) => (
                     <div key={voice._id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg">
                       <div className="mb-2 md:mb-0 md:mr-4 flex-grow">
-                        <p className="font-medium truncate max-w-md">{voice.text}</p>
+                        {voice.text ? (
+                          <div className="mb-2 p-2 bg-muted/50 rounded-md">
+                            <p className="font-medium text-sm">"{voice.text}"</p>
+                          </div>
+                        ) : (
+                          <p className="font-medium text-muted-foreground italic">{t('dashboard.noTextAvailable')}</p>
+                        )}
                         <div className="flex items-center mt-1">
                           <Badge variant="outline" className="mr-2">{(voice.cost).toFixed(2)} {t('dashboard.points')}</Badge>
                           <span className="text-xs text-muted-foreground">{formatDate(voice.createDate)}</span>

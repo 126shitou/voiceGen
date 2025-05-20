@@ -1,5 +1,6 @@
 import { Schema, model, models } from "mongoose"
 import { getCurrentTime } from '@/lib/utils';
+
 const VoiceSchema = new Schema({
     userId: {
         type: String,
@@ -7,6 +8,10 @@ const VoiceSchema = new Schema({
     voiceUrl: {
         type: String,
         require: [true, "voiceUrl is required"]
+    },
+    text: {
+        type: String,
+        default: ""
     },
     cost: {
         type: Number,
