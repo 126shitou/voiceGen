@@ -60,10 +60,10 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
     } catch (e) {
         console.log("error", e);
-        return NextResponse.json(
-            { error: "Failed to add to collection" },
-            { status: 500 }
-        );
+        return new Response(JSON.stringify({ error: 'Failed to update' }), { 
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 
 }
