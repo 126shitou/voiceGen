@@ -16,7 +16,7 @@ const PRODUCT_TOKEN_LIST = [
     { key: 'prod_SL2Wik94PZXSNa', value: 700 }
 ]
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
 
     try {
         const rawBody = await req.text()
@@ -36,7 +36,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
             console.log("session", JSON.stringify(session));
             console.log("line_items", JSON.stringify(line_items));
             if (user) {
-                line_items.data.forEach(async ele => {
+
+                const promises = line_items.data.map(async (ele) => {
                     const pId = ele.price?.product
                     let v = PRODUCT_TOKEN_LIST.find(i => i.key === pId)?.value || 0
                     user.balance += v
@@ -50,18 +51,20 @@ export async function POST(req: NextRequest, res: NextResponse) {
                         product: pId,
                         createDate: getCurrentTime()
                     })
-                    await order.save()
+                    return order.save()
                 });
+
+                await Promise.all(promises);
+
                 await user.save();
             }
 
-            return NextResponse.json({ received: true }, { status: 200 })
-
+            return new Response('success', { status: 200 })
         }
 
     } catch (e) {
         console.log("error", e);
-        return new NextResponse(JSON.stringify({ error: 'Failed to update' }), {
+        return new Response(JSON.stringify({ error: 'Failed to update' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
