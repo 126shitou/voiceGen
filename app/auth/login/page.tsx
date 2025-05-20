@@ -77,6 +77,23 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+
+    setIsLoading(true);
+    try {
+      await signIn('google', { callbackUrl: '/' });
+    } catch (error) {
+      console.error('Login failed:', error);
+      toast({
+        variant: 'destructive',
+        title: t('auth.loginFailed'),
+        description: t('auth.tryAgain'),
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative">
       {/* Background gradient */}
@@ -117,7 +134,7 @@ export default function LoginPage() {
             <Button
               variant="outline"
               size="lg"
-              className="w-full relative overflow-hidden group"
+              className="w-full relative overflow-hidden group mb-3"
               onClick={handleGithubLogin}
               disabled={isLoading}
             >
@@ -127,6 +144,22 @@ export default function LoginPage() {
                 <Github className="h-4 w-4 mr-2" />
               )}
               {t('auth.continueWithGithub')}
+              <ArrowRight className="h-4 w-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full relative overflow-hidden group"
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Github className="h-4 w-4 mr-2" />
+              )}
+              {t('auth.continueWithGoogle')}
               <ArrowRight className="h-4 w-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
             </Button>
 

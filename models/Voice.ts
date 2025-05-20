@@ -22,10 +22,10 @@ const VoiceSchema = new Schema({
         default: 0
     },
     createDate: {
-        type: Date,
+        type: String,
     },
     updateDate: {
-        type: Date,
+        type: String,
         default: getCurrentTime()
     },
 })

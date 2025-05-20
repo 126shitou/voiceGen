@@ -22,10 +22,10 @@ const OrderSchema = new Schema({
         type: String,
     },
     createDate: {
-        type: Date,
+        type: String,
     },
     updateDate: {
-        type: Date,
+        type: String,
         default: getCurrentTime()
     },
 
