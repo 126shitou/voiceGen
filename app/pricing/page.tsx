@@ -34,18 +34,30 @@ export default function PricingPage() {
   type PlanEnum = 'free' | 'basic' | 'pro'
 
   const payForPlan = async (plan: PlanEnum) => {
+    // 检查用户是否已登录
+    if (status === 'unauthenticated') {
+      // 如果未登录，重定向到登录页面
+      router.push('/api/auth/signin');
+      return;
+    }
 
     if (plan === 'free') {
       router.push('/text-to-speech');
-      return
+      return;
     }
 
-    let userId = session?.user.id
-    const stripe = await getStripe()
+    let userId = session?.user.id;
+    if (!userId) {
+      // 额外检查，确保用户ID存在
+      router.push('/api/auth/signin');
+      return;
+    }
+
+    const stripe = await getStripe();
     const response = await fetch("/api/stripe", {
       method: "POST",
       headers: {
-        "Content-Type": "application/josn"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({ userId, type: plan })
     })
@@ -123,7 +135,9 @@ export default function PricingPage() {
             <Button onClick={() => payForPlan('free')}
               className={`w-full transition-all ${selectedPlan === 'free' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
             >
-              {selectedPlan === 'free' ? t('pricing.selected') : t('pricing.free.cta')}
+              {status === 'unauthenticated' 
+                ? t('common.signInRequired') 
+                : (selectedPlan === 'free' ? t('pricing.selected') : t('pricing.free.cta'))}
             </Button>
           </CardFooter>
         </Card>
@@ -161,8 +175,11 @@ export default function PricingPage() {
           <CardFooter className="mt-auto pt-6">
             <Button onClick={() => payForPlan('basic')}
               className={`w-full transition-all ${selectedPlan === 'basic' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
+              disabled={status === 'unauthenticated'}
             >
-              {selectedPlan === 'basic' ? t('pricing.selected') : t('pricing.basic.cta')}
+              {status === 'unauthenticated' 
+                ? t('common.signInRequired') 
+                : (selectedPlan === 'basic' ? t('pricing.selected') : t('pricing.basic.cta'))}
             </Button>
           </CardFooter>
         </Card>
@@ -205,8 +222,11 @@ export default function PricingPage() {
             <Button
               onClick={() => payForPlan('pro')}
               className={`w-full transition-all bg-primary hover:bg-primary/90 text-primary-foreground ${selectedPlan === 'pro' ? "shadow-lg" : ""}`}
+              disabled={status === 'unauthenticated'}
             >
-              {selectedPlan === 'pro' ? t('pricing.selected') : t('pricing.pro.cta')}
+              {status === 'unauthenticated' 
+                ? t('common.signInRequired') 
+                : (selectedPlan === 'pro' ? t('pricing.selected') : t('pricing.pro.cta'))}
             </Button>
           </CardFooter>
         </Card>

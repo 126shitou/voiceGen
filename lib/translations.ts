@@ -1,5 +1,11 @@
 export const translations = {
   en: {
+    common: {
+      loading: 'Loading...',
+      signInRequired: 'Sign in required',
+      error: 'Error',
+      success: 'Success'
+    },
     nav: {
       home: 'Home',
       pricing: 'Pricing',
@@ -404,6 +410,12 @@ export const translations = {
     }
   },
   zh: {
+    common: {
+      loading: '加载中...',
+      signInRequired: '需要登录',
+      error: '错误',
+      success: '成功'
+    },
     nav: {
       home: '首页',
       pricing: '价格',
@@ -806,6 +818,12 @@ export const translations = {
     }
   },
   ja: {
+    common: {
+      loading: '読み込み中...',
+      signInRequired: 'ログインが必要です',
+      error: 'エラー',
+      success: '成功'
+    },
     nav: {
       home: 'ホーム',
       pricing: '料金',
@@ -1209,6 +1227,12 @@ export const translations = {
     }
   },
   ko: {
+    common: {
+      loading: '로딩 중...',
+      signInRequired: '로그인이 필요합니다',
+      error: '오류',
+      success: '성공'
+    },
     nav: {
       home: '홈',
       pricing: '가격',
