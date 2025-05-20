@@ -166,8 +166,8 @@ export default function TextToSpeechPage() {
     if (!session?.user?.id) {
       toast({
         variant: 'destructive',
-        title: 'Authentication Required',
-        description: 'You must be logged in to generate speech.',
+        title: t('tts.authRequired'),
+        description: t('tts.mustBeLoggedIn'),
       });
       return;
     }
@@ -189,8 +189,10 @@ export default function TextToSpeechPage() {
     if (dbUser.balance < requiredBalance) {
       toast({
         variant: 'destructive',
-        title: 'Insufficient balance',
-        description: `You need ${requiredBalance.toFixed(1)} points to generate this audio. Your current balance is ${dbUser.balance.toFixed(1)} points.`,
+        title: t('tts.insufficientBalance'),
+        description: t('tts.balanceNeeded')
+          .replace('{0}', requiredBalance.toFixed(1))
+          .replace('{1}', dbUser.balance.toFixed(1)),
       });
       return;
     }
@@ -198,8 +200,8 @@ export default function TextToSpeechPage() {
     if (!text.trim()) {
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'Please enter some text to convert to speech.',
+        title: t('tts.error'),
+        description: t('tts.emptyTextError'),
       });
       return;
     }
@@ -236,8 +238,8 @@ export default function TextToSpeechPage() {
 
       // Show a toast to indicate processing has started
       toast({
-        title: 'Processing',
-        description: 'Generating audio, please wait...',
+        title: t('tts.processing'),
+        description: t('tts.generatingAudio'),
       });
 
       // Poll for the result
@@ -295,8 +297,8 @@ export default function TextToSpeechPage() {
         let { balance } = await balanceData.json()
 
         toast({
-          title: 'Success',
-          description: `Your audio has been generated successfully. Used ${usedBalance} points.`,
+          title: t('tts.success'),
+          description: t('tts.audioGenerated').replace('{0}', usedBalance),
         });
 
         await fetch(`/api/voice/add`, {
@@ -401,8 +403,8 @@ export default function TextToSpeechPage() {
     if (!audioUrl && !currentAudio?.url) {
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'No audio available to download.',
+        title: t('tts.error'),
+        description: t('tts.noAudioToDownload'),
       });
       return;
     }
@@ -418,8 +420,8 @@ export default function TextToSpeechPage() {
     document.body.removeChild(a);
 
     toast({
-      title: 'Download started',
-      description: 'Your audio file is being downloaded.',
+      title: t('tts.downloadStarted'),
+      description: t('tts.downloadStartedDesc'),
     });
   };
 
@@ -438,10 +440,10 @@ export default function TextToSpeechPage() {
     if (!audioUrl || !user) {
       toast({
         variant: 'destructive',
-        title: 'Error',
+        title: t('tts.error'),
         description: !audioUrl
-          ? 'No audio available to save.'
-          : 'You must be logged in to save audio.',
+          ? t('tts.noAudioToSave')
+          : t('tts.mustBeLoggedInToSave'),
       });
       return;
     }
@@ -478,8 +480,8 @@ export default function TextToSpeechPage() {
     }
 
     toast({
-      title: 'Audio saved locally',
-      description: 'Your audio has been saved to your local library.',
+      title: t('tts.audioSavedLocally'),
+      description: t('tts.audioSavedLocallyDesc'),
     });
 
     // Reset state
@@ -511,16 +513,16 @@ export default function TextToSpeechPage() {
         setCollectionAudios(formattedCollection);
 
         toast({
-          title: 'Audio saved to cloud',
-          description: 'Your audio has been saved to your cloud collection.',
+          title: t('tts.audioSavedToCloud'),
+          description: t('tts.audioSavedToCloudDesc'),
         });
       }
     } catch (error) {
       console.error('Error saving to collection:', error);
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to save to cloud collection.',
+        title: t('tts.error'),
+        description: t('tts.failedToSaveCloud'),
       });
     }
 
@@ -564,16 +566,16 @@ export default function TextToSpeechPage() {
           }));
           setCollectionAudios(formattedCollection);
           toast({
-            title: 'Audio deleted',
-            description: 'Audio removed from cloud collection.',
+            title: t('tts.audioDeletedTitle'),
+            description: t('tts.audioDeletedFromCloud'),
           });
         }
       } catch (error) {
         console.error('Error deleting from collection:', error);
         toast({
           variant: 'destructive',
-          title: 'Error',
-          description: 'Failed to delete from cloud collection.',
+          title: t('tts.error'),
+          description: t('tts.failedToDeleteCloud'),
         });
       }
     } else {
@@ -587,8 +589,8 @@ export default function TextToSpeechPage() {
       }
 
       toast({
-        title: 'Audio deleted',
-        description: 'The audio has been removed from your local library.',
+        title: t('tts.audioDeletedTitle'),
+        description: t('tts.audioDeletedFromLocal'),
       });
     }
 
@@ -619,15 +621,15 @@ export default function TextToSpeechPage() {
     navigator.clipboard.writeText(text)
       .then(() => {
         toast({
-          title: 'Text copied',
-          description: 'Text has been copied to clipboard.',
+          title: t('tts.textCopiedTitle'),
+          description: t('tts.textCopiedDesc'),
         });
       })
       .catch(() => {
         toast({
           variant: 'destructive',
-          title: 'Error',
-          description: 'Failed to copy text to clipboard.',
+          title: t('tts.error'),
+          description: t('tts.failedToCopyText'),
         });
       });
   };
@@ -894,7 +896,7 @@ export default function TextToSpeechPage() {
 
           <TabsContent value="library">
             <div className="space-y-6">
-              <h3 className="text-xl font-medium mb-4">Local Library</h3>
+              <h3 className="text-xl font-medium mb-4">{t('tts.localLibrary')}</h3>
               {savedAudios.length === 0 ? (
                 <div className="text-center py-6">
                   <h3 className="text-lg font-medium mb-2">{t('tts.noSavedAudios')}</h3>
@@ -948,11 +950,11 @@ export default function TextToSpeechPage() {
                 ))
               )}
 
-              <h3 className="text-xl font-medium mt-8 mb-4">Cloud Collection</h3>
+              <h3 className="text-xl font-medium mt-8 mb-4">{t('tts.cloudCollection')}</h3>
               {collectionAudios.length === 0 ? (
                 <div className="text-center py-6">
-                  <h3 className="text-lg font-medium mb-2">No saved audios in cloud</h3>
-                  <p className="text-muted-foreground">Generate and save audio to add to your cloud collection</p>
+                  <h3 className="text-lg font-medium mb-2">{t('tts.noCloudAudios')}</h3>
+                  <p className="text-muted-foreground">{t('tts.generateToSaveCloud')}</p>
                 </div>
               ) : (
                 collectionAudios.map((item) => (
