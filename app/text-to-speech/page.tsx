@@ -26,7 +26,8 @@ import {
   Wand2,
   Save,
   History,
-  Copy
+  Copy,
+  Trash2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -40,7 +41,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { getCurrentTime } from '@/lib/utils';
+import { getAudioStorage } from '@/lib/indexedDB';
 // Voice models
 const voices = [
   // English - British Male
@@ -78,14 +79,12 @@ export default function TextToSpeechPage() {
   const [audioUrl, setAudioUrl] = useState('');
   const [showGenerated, setShowGenerated] = useState(false);
   const [savedAudios, setSavedAudios] = useState<SavedAudio[]>([]);
-  const [collectionAudios, setCollectionAudios] = useState<{ url: string, id: string }[]>([]);
   const [activeTab, setActiveTab] = useState('generate');
   const [currentAudio, setCurrentAudio] = useState<SavedAudio | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [audioToDelete, setAudioToDelete] = useState<{ id: string, url?: string, isCloud?: boolean } | null>(null);
-  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [audioToSave, setAudioToSave] = useState<{ text: string, voice: string, speed: number, url: string } | null>(null);
+  const [audioToDelete, setAudioToDelete] = useState<{ id: string, url?: string } | null>(null);
+  // 删除与保存相关的状态
 
   // Set initial voice based on language
   useEffect(() => {
@@ -104,52 +103,44 @@ export default function TextToSpeechPage() {
     }
   }, [language]);
 
-  // Load saved audios from localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined' && user) {
-      const saved = localStorage.getItem(`savedAudios-${user.id}`);
-      if (saved) {
-        try {
-          const parsedAudios = JSON.parse(saved);
-          // Convert string dates back to Date objects
-          const audiosWithDates = parsedAudios.map((audio: any) => ({
-            ...audio,
-            createdAt: new Date(audio.createdAt)
-          }));
-          setSavedAudios(audiosWithDates);
-        } catch (e) {
-          console.error('Error parsing saved audios', e);
-        }
-      }
-      // Load user's collection from database
-      fetchUserCollection();
-    }
-  }, [user]);
-
-  // Fetch user's collection from database
-  const fetchUserCollection = async () => {
-    if (!user?.id) return;
+  // 加载音频数据的函数
+  const loadIndexedDBData = async () => {
+    if (typeof window === 'undefined') return;
 
     try {
-      const response = await fetch(`/api/user/${user.id}/collect`);
-      if (response.ok) {
-        const data = await response.json();
-        // 将URL数组转换为对象数组，添加唯一ID
-        const formattedCollection = data.collection.map((url: string) => ({
-          url,
-          id: `cloud-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const audioStorage = getAudioStorage();
+      const audioList = await audioStorage.listAllAudio();
+
+      // 将IndexedDB中的音频添加到已保存的音频列表中
+      if (audioList.length > 0) {
+        const indexedDBaudios = audioList.map(item => ({
+          id: item.id,
+          text: item.metadata.text || '',
+          voice: item.metadata.voice || '',
+          speed: item.metadata.speed || 1.0,
+          url: item.id, // 使用ID作为URL，播放时会从IndexedDB中获取
+          createdAt: item.metadata.createdAt ? new Date(item.metadata.createdAt) : new Date()
         }));
-        setCollectionAudios(formattedCollection);
+
+        // 按时间排序
+        setSavedAudios(indexedDBaudios.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
       }
     } catch (error) {
-      console.error('Error fetching user collection:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to load your audio collection.'
-      });
+      console.error('Error loading audios from IndexedDB:', error);
     }
   };
+
+  // 页面加载时加载音频数据
+  useEffect(() => {
+    loadIndexedDBData();
+  }, []);
+
+  // 当标签切换到library时重新加载音频数据
+  useEffect(() => {
+    if (activeTab === 'library') {
+      loadIndexedDBData();
+    }
+  }, [activeTab]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -189,7 +180,7 @@ export default function TextToSpeechPage() {
       });
 
       // 调用服务端API生成语音
-      const response = await fetch('/api/predictions', {
+      const response = await fetch('/api/replicate/predictions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -204,36 +195,63 @@ export default function TextToSpeechPage() {
 
       if (!response.ok) {
         // 处理错误响应
-        const errorData = await response.json();
+        if (response.headers.get('Content-Type')?.includes('application/json')) {
+          const errorData = await response.json();
 
-        // 处理余额不足的情况
-        if (response.status === 402 && errorData.error === 'Insufficient balance') {
-          toast({
-            variant: 'destructive',
-            title: t('tts.insufficientBalance'),
-            description: t('tts.balanceNeeded')
-              .replace('{0}', errorData.requiredBalance)
-              .replace('{1}', errorData.currentBalance),
-          });
-          return;
+          // 处理余额不足的情况
+          if (response.status === 402 && errorData.error === 'Insufficient balance') {
+            toast({
+              variant: 'destructive',
+              title: t('tts.insufficientBalance'),
+              description: t('tts.balanceNeeded')
+                .replace('{0}', errorData.requiredBalance)
+                .replace('{1}', errorData.currentBalance),
+            });
+            return;
+          }
+
+          throw new Error(errorData.error || `Failed with status: ${response.status}`);
+        } else {
+          throw new Error(`Failed with status: ${response.status}`);
         }
-
-        throw new Error(errorData.error || `Failed with status: ${response.status}`);
       }
 
-      // 处理成功响应
-      const result = await response.json();
+      // 获取音频文件作为Blob
+      const audioBlob = await response.blob();
+
+      // 获取使用的余额和当前余额（从响应头中获取）
+      const usedBalance = response.headers.get('X-Used-Balance') || '0';
+      const currentBalance = response.headers.get('X-Current-Balance') || '0';
+
+      // 将音频文件存储到IndexedDB
+      const audioStorage = getAudioStorage();
+      const audioId = await audioStorage.storeAudioFromUrl(
+        URL.createObjectURL(audioBlob),
+        {
+          text,
+          voice,
+          speed,
+          usedBalance,
+          createdAt: new Date()
+        }
+      );
+
+      // 创建临时URL用于播放
+      const tempUrl = URL.createObjectURL(audioBlob);
 
       // 更新UI
-      setAudioUrl(result.output);
+      setAudioUrl(tempUrl);
       setShowGenerated(true);
       setCurrentAudio(null);
 
-      // 显示成功消息
+      // 显示成功消息和存储位置提示
       toast({
         title: t('tts.success'),
-        description: t('tts.audioGenerated').replace('{0}', result.usedBalance),
+        description: `${t('tts.audioGenerated').replace('{0}', usedBalance)}\n${t('tts.audioStoredInIndexedDB')}`,
       });
+
+      // 生成音频后自动加载音频列表
+      loadIndexedDBData();
     } catch (error) {
       console.error('Error generating speech:', error);
       toast({
@@ -246,7 +264,7 @@ export default function TextToSpeechPage() {
     }
   };
 
-  const playAudio = (audioUrlToPlay?: string, switchToGenerate: boolean = true) => {
+  const playAudio = async (audioUrlToPlay?: string, switchToGenerate: boolean = true) => {
     // 确保audioRef存在
     if (!audioRef.current) {
       console.error('Audio reference is null');
@@ -259,15 +277,49 @@ export default function TextToSpeechPage() {
     }
 
     try {
+      // 先暂停当前播放，避免多个音频同时播放
+      audioRef.current.pause();
+      setIsPlaying(false);
+
       // 如果提供了特定URL，则播放该URL
       if (audioUrlToPlay) {
-        // 先暂停当前播放，避免多个音频同时播放
-        audioRef.current.pause();
+        // 检查URL是否是IndexedDB中的ID格式 (以'audio-'开头)
+        if (audioUrlToPlay.startsWith('audio-')) {
+          try {
+            // 从IndexedDB获取音频
+            const audioStorage = getAudioStorage();
+            const audioData = await audioStorage.getAudio(audioUrlToPlay);
 
-        // 设置新的音频源
-        audioRef.current.src = audioUrlToPlay;
-        audioRef.current.load(); // 确保重新加载音频
-        setAudioUrl(audioUrlToPlay);
+            if (audioData && audioData.blob) {
+              // 创建临时URL
+              const tempUrl = URL.createObjectURL(audioData.blob);
+              audioRef.current.src = tempUrl;
+              audioRef.current.load();
+              setAudioUrl(tempUrl);
+
+              // 等待加载完成
+              await new Promise((resolve) => {
+                audioRef.current!.onloadeddata = resolve;
+              });
+            } else {
+              throw new Error('Audio not found in storage or invalid blob');
+            }
+          } catch (error) {
+            console.error('Error loading audio from IndexedDB:', error);
+            throw error;
+          }
+        } else {
+          // 直接使用URL
+          audioRef.current.src = audioUrlToPlay;
+          audioRef.current.load(); // 确保重新加载音频
+          setAudioUrl(audioUrlToPlay);
+
+          // 等待加载完成
+          await new Promise((resolve) => {
+            audioRef.current!.onloadeddata = resolve;
+          });
+        }
+
         setCurrentAudio(null);
 
         // 只有在需要切换到生成标签页时才显示生成的音频播放器
@@ -277,22 +329,20 @@ export default function TextToSpeechPage() {
         }
       }
 
-      // 播放音频
-      const playPromise = audioRef.current.play();
+      // 等待一小段时间再播放，确保音频已经加载完成
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch(error => {
-            console.error('Error playing audio:', error);
-            toast({
-              variant: 'destructive',
-              title: 'Playback Error',
-              description: 'Could not play the audio. Please try again.',
-            });
-          });
+      // 播放音频
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (error) {
+        console.error('Error playing audio:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Playback Error',
+          description: 'Could not play the audio. Please try again.',
+        });
       }
     } catch (error) {
       console.error('Error in playAudio function:', error);
@@ -315,7 +365,7 @@ export default function TextToSpeechPage() {
     setIsPlaying(false);
   };
 
-  const downloadAudio = () => {
+  const downloadAudio = async () => {
     if (!audioUrl && !currentAudio?.url) {
       toast({
         variant: 'destructive',
@@ -326,19 +376,61 @@ export default function TextToSpeechPage() {
     }
 
     const url = currentAudio?.url || audioUrl;
+    let blobToDownload: Blob | null = null;
 
-    // Create a temporary anchor element
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `voice-gen-${new Date().getTime()}.mp3`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // 检查URL是否是IndexedDB中的ID格式
+    if (url.startsWith('audio-')) {
+      // 从IndexedDB获取音频
+      const audioStorage = getAudioStorage();
+      const audioData = await audioStorage.getAudio(url);
 
-    toast({
-      title: t('tts.downloadStarted'),
-      description: t('tts.downloadStartedDesc'),
-    });
+      if (audioData) {
+        blobToDownload = audioData.blob;
+      } else {
+        toast({
+          variant: 'destructive',
+          title: t('tts.error'),
+          description: '无法从存储中找到音频文件',
+        });
+        return;
+      }
+    } else {
+      // 尝试从URL获取Blob
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Failed to fetch audio file');
+        }
+        blobToDownload = await response.blob();
+      } catch (error) {
+        console.error('Error downloading audio:', error);
+        toast({
+          variant: 'destructive',
+          title: t('tts.error'),
+          description: '无法下载音频文件',
+        });
+        return;
+      }
+    }
+
+    if (blobToDownload) {
+      // 创建临时URL和下载链接
+      const downloadUrl = URL.createObjectURL(blobToDownload);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `voice-gen-${new Date().getTime()}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // 释放临时URL
+      URL.revokeObjectURL(downloadUrl);
+
+      toast({
+        title: t('tts.downloadStarted'),
+        description: t('tts.downloadStartedDesc'),
+      });
+    }
   };
 
   const resetAll = () => {
@@ -352,163 +444,35 @@ export default function TextToSpeechPage() {
     setIsPlaying(false);
   };
 
-  const handleSaveClick = () => {
-    if (!audioUrl || !user) {
-      toast({
-        variant: 'destructive',
-        title: t('tts.error'),
-        description: !audioUrl
-          ? t('tts.noAudioToSave')
-          : t('tts.mustBeLoggedInToSave'),
-      });
-      return;
-    }
-
-    setAudioToSave({
-      text,
-      voice,
-      speed,
-      url: audioUrl
-    });
-    setSaveDialogOpen(true);
-  };
-
-  const saveToLocal = async () => {
-    if (!audioToSave || !user) return;
-
-    const { text, voice, speed, url } = audioToSave;
-
-    const newAudio: SavedAudio = {
-      id: `audio-${Date.now()}`,
-      text,
-      voice,
-      speed,
-      url,
-      createdAt: new Date()
-    };
-
-    const updatedAudios = [newAudio, ...savedAudios];
-    setSavedAudios(updatedAudios);
-
-    // Save to localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`savedAudios-${user.id}`, JSON.stringify(updatedAudios));
-    }
-
-    toast({
-      title: t('tts.audioSavedLocally'),
-      description: t('tts.audioSavedLocallyDesc'),
-    });
-
-    // Reset state
-    setAudioToSave(null);
-    setSaveDialogOpen(false);
-  };
-  const saveToCloud = async () => {
-    if (!audioToSave || !user) return;
-
-    const { url } = audioToSave;
-
-    // Save to user's collection in database
-    try {
-      const response = await fetch(`/api/user/${user.id}/collect`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // 将URL数组转换为对象数组，添加唯一ID
-        const formattedCollection = data.collection.map((url: string) => ({
-          url,
-          id: `cloud-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        }));
-        setCollectionAudios(formattedCollection);
-
-        toast({
-          title: t('tts.audioSavedToCloud'),
-          description: t('tts.audioSavedToCloudDesc'),
-        });
-      }
-    } catch (error) {
-      console.error('Error saving to collection:', error);
-      toast({
-        variant: 'destructive',
-        title: t('tts.error'),
-        description: t('tts.failedToSaveCloud'),
-      });
-    }
-
-    // Reset state
-    setAudioToSave(null);
-    setSaveDialogOpen(false);
-  };
-
-  const saveToBoth = async () => {
-    await saveToLocal();
-    await saveToCloud();
-  };
-
-  const handleDeleteClick = (id: string, url?: string, isCloud?: boolean) => {
-    setAudioToDelete({ id, url, isCloud });
+  const handleDeleteClick = (id: string) => {
+    setAudioToDelete({ id });
     setDeleteDialogOpen(true);
   };
 
   const deleteSavedAudio = async () => {
     if (!audioToDelete) return;
 
-    const { id, url, isCloud } = audioToDelete;
+    const { id } = audioToDelete;
 
-    if (isCloud && url) {
-      // Delete from cloud collection
+    // Delete from local library
+    const updatedAudios = savedAudios.filter(audio => audio.id !== id);
+    setSavedAudios(updatedAudios);
+
+    // 如果是IndexedDB中的音频（ID以'audio-'开头），也从那里删除
+    if (id.startsWith('audio-')) {
       try {
-        const response = await fetch(`/api/user/${user?.id}/collect`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ url })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          // 将URL数组转换为对象数组，添加唯一ID
-          const formattedCollection = data.collection.map((url: string) => ({
-            url,
-            id: `cloud-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-          }));
-          setCollectionAudios(formattedCollection);
-          toast({
-            title: t('tts.audioDeletedTitle'),
-            description: t('tts.audioDeletedFromCloud'),
-          });
-        }
+        const audioStorage = getAudioStorage();
+        await audioStorage.deleteAudio(id);
+        console.log('Audio deleted from IndexedDB:', id);
       } catch (error) {
-        console.error('Error deleting from collection:', error);
-        toast({
-          variant: 'destructive',
-          title: t('tts.error'),
-          description: t('tts.failedToDeleteCloud'),
-        });
+        console.error('Error deleting audio from IndexedDB:', error);
       }
-    } else {
-      // Delete from local library
-      const updatedAudios = savedAudios.filter(audio => audio.id !== id);
-      setSavedAudios(updatedAudios);
-
-      // Update localStorage
-      if (typeof window !== 'undefined' && user) {
-        localStorage.setItem(`savedAudios-${user.id}`, JSON.stringify(updatedAudios));
-      }
-
-      toast({
-        title: t('tts.audioDeletedTitle'),
-        description: t('tts.audioDeletedFromLocal'),
-      });
     }
+
+    toast({
+      title: t('tts.audioDeletedTitle'),
+      description: t('tts.audioDeletedFromLocal'),
+    });
 
     // Reset state
     setAudioToDelete(null);
@@ -525,9 +489,12 @@ export default function TextToSpeechPage() {
 
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = audio.url;
+      // 不直接设置 src，而是调用 playAudio 方法，该方法会处理 IndexedDB 中的音频
       setIsPlaying(false);
     }
+
+    // 异步加载音频，但不播放
+    playAudio(audio.url, true);
 
     // Switch to Generate Audio tab
     setActiveTab('generate');
@@ -575,7 +542,7 @@ export default function TextToSpeechPage() {
         onEnded={handleAudioEnded}
         preload="auto"
         style={{ display: 'none' }}
-      />
+      ></audio>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -594,30 +561,7 @@ export default function TextToSpeechPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('tts.saveLocationTitle')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('tts.saveLocationDescription')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="grid grid-cols-1 gap-4 py-4">
-            <Button onClick={saveToLocal} variant="outline" className="w-full">
-              <span className="mr-2">💻</span> {t('tts.saveToLocal')}
-            </Button>
-            <Button onClick={saveToCloud} variant="outline" className="w-full">
-              <span className="mr-2">☁️</span> {t('tts.saveToCloud')}
-            </Button>
-            <Button onClick={saveToBoth} className="w-full">
-              <span className="mr-2">🔄</span> {t('tts.saveToBoth')}
-            </Button>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('tts.cancel')}</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* 删除保存对话框 */}
       <h1 className="text-4xl font-bold text-center mb-8">{t('tts.pageTitle')}</h1>
       <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-10">
         {t('tts.pageDescription')}
@@ -705,16 +649,7 @@ export default function TextToSpeechPage() {
                   </Button>
 
                   <div className="flex gap-2">
-                    {user && audioUrl && (
-                      <Button
-                        variant="outline"
-                        onClick={handleSaveClick}
-                        className="border-primary/30 text-primary"
-                      >
-                        <Save className="mr-2 h-4 w-4" />
-                        {t('tts.save')}
-                      </Button>
-                    )}
+                    {/* 删除Save to Library按钮 */}
 
                     <Button
                       variant="outline"
@@ -812,136 +747,63 @@ export default function TextToSpeechPage() {
 
           <TabsContent value="library">
             <div className="space-y-6">
-              <h3 className="text-xl font-medium mb-4">{t('tts.localLibrary')}</h3>
+              {/* 删除Local Library标题 */}
               {savedAudios.length === 0 ? (
                 <div className="text-center py-6">
                   <h3 className="text-lg font-medium mb-2">{t('tts.noSavedAudios')}</h3>
                   <p className="text-muted-foreground">{t('tts.generateToSave')}</p>
                 </div>
               ) : (
-                savedAudios.map((audio) => (
-                  <Card key={audio.id} className="overflow-hidden">
-                    <CardContent className="p-4">
-                      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2">
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(audio.createdAt).toLocaleString()}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {t(voices.find(v => v.id === audio.voice)?.name || '')}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {audio.speed.toFixed(1)}x
-                            </p>
-                          </div>
-                          <p className="text-sm line-clamp-2">{audio.text}</p>
-                        </div>
-                        <div className="flex gap-2 shrink-0">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => loadSavedAudio(audio)}
-                          >
-                            {t('tts.load')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyTextToClipboard(audio.text)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDeleteClick(audio.id, audio.url)}
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </Button>
-                        </div>
+                savedAudios.map((audio, index) => (
+                  <div key={`${audio.id}-${index}`} className="flex flex-col gap-2 p-4 border rounded-md">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium truncate max-w-[150px]" title={audio.text}>
+                          {audio.text.substring(0, 30)}{audio.text.length > 30 ? '...' : ''}
+                        </span>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-
-              <h3 className="text-xl font-medium mt-8 mb-4">{t('tts.cloudCollection')}</h3>
-              {collectionAudios.length === 0 ? (
-                <div className="text-center py-6">
-                  <h3 className="text-lg font-medium mb-2">{t('tts.noCloudAudios')}</h3>
-                  <p className="text-muted-foreground">{t('tts.generateToSaveCloud')}</p>
-                </div>
-              ) : (
-                collectionAudios.map((item) => (
-                  <Card key={item.id} className="mb-4 overflow-hidden">
-                    <CardContent className="p-4">
-                      <div className="flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0 flex justify-center">
-                            <p className="text-sm text-muted-foreground">{new Date().toLocaleString()}</p>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                // 云端音频直接播放，不切换标签页
-                                playAudio(item.url, false);
-                              }}
-                            >
-                              <Play className="h-4 w-4 mr-2" />
-                              {t('tts.play')}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                const a = document.createElement('a');
-                                a.href = item.url;
-                                a.download = `voice-gen-${new Date().getTime()}.mp3`;
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                              }}
-                            >
-                              <Download className="h-4 w-4 mr-2" />
-                              {t('tts.download')}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDeleteClick(item.id, item.url, true)}
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-2 bg-accent rounded-lg p-3">
-                          <div className="flex items-center space-x-1">
-                            {[...Array(5)].map((_, i) => (
-                              <div
-                                key={i}
-                                className={`w-1 bg-primary rounded-full`}
-                                style={{
-                                  height: '0.5rem',
-                                  opacity: 0.5,
-                                }}
-                              ></div>
-                            ))}
-                          </div>
-                          <div className="flex-1 truncate">
-                            <p className="text-sm truncate">{item.url.split('/').pop()}</p>
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => playAudio(audio.url, false)}
+                          title={t('tts.play')}
+                        >
+                          <Play className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => copyTextToClipboard(audio.text)}
+                          title={t('tts.copyText')}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        {/* 删除loadToEditor按钮 */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteClick(audio.id)}
+                          title={t('tts.delete')}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(audio.createdAt).toLocaleString()}
+                      {audio.id.startsWith('audio-') && (
+                        <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">
+                          IndexedDB
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )))}
             </div>
           </TabsContent>
+
+
         </Tabs>
       </div>
     </div>

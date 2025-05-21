@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -38,6 +38,7 @@ import { formatDistance } from 'date-fns';
 import { zhCN } from 'date-fns/locale/zh-CN';
 import { ja } from 'date-fns/locale/ja';
 import { ko } from 'date-fns/locale/ko';
+import { getAudioStorage } from '@/lib/indexedDB';
 
 // 订单类型定义
 type Order = {
@@ -52,39 +53,36 @@ type Order = {
 };
 
 // 语音类型定义
-type Voice = {
-  _id: string;
-  userId: string;
-  voiceUrl: string;
-  cost: number;
-  balance: number;
+type SavedAudio = {
+  id: string;
   text?: string;
-  createDate: string;
+  voice?: string;
+  speed?: number;
+  usedBalance?: number;
+  createdAt: Date;
+  url?: string;
 };
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
-  const loading = status === 'loading';
-  const user = session?.user;
-  const router = useRouter();
   const { t } = useLanguage();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const { toast } = useToast();
-  const [totalSpent, setTotalSpent] = useState(0);
-  const [dataLoading, setDataLoading] = useState(false);
+  const user = session?.user;
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // 当前播放的音频
+  // 状态变量
+  const [loading, setLoading] = useState(status === 'loading');
+  const [dataLoading, setDataLoading] = useState(false);
+  const [orderHistory, setOrderHistory] = useState<Order[]>([]);
+  const [voiceHistory, setVoiceHistory] = useState<SavedAudio[]>([]);
+  const [totalSpent, setTotalSpent] = useState(0);
+  const [lastOrderDate, setLastOrderDate] = useState('-');
+  const [lastVoiceDate, setLastVoiceDate] = useState('-');
+  const [accountAge, setAccountAge] = useState(0);
+  const [memberSince, setMemberSince] = useState('');
   const [currentAudio, setCurrentAudio] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-
-  // 真实数据
-  const [orderHistory, setOrderHistory] = useState<Order[]>([]);
-  const [voiceHistory, setVoiceHistory] = useState<Voice[]>([]);
-  const [lastOrderDate, setLastOrderDate] = useState<string>('-');
-  const [lastVoiceDate, setLastVoiceDate] = useState<string>('-');
-  const [memberSince, setMemberSince] = useState<string>('-');
-  const [accountAge, setAccountAge] = useState<number>(0);
-
-  // 删除确认对话框状态
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [voiceToDelete, setVoiceToDelete] = useState<string | null>(null);
 
@@ -138,23 +136,8 @@ export default function DashboardPage() {
         }
       }
 
-      // 获取语音历史
-      const voiceRes = await fetch(`/api/voice/user/${user.id}`);
-      const voiceData = await voiceRes.json();
-
-      if (voiceData.success && voiceData.voices) {
-        // 按创建日期降序排序语音历史
-        const sortedVoices = [...voiceData.voices].sort((a, b) => {
-          return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
-        });
-
-        setVoiceHistory(sortedVoices);
-
-        // 设置最后语音生成日期（使用排序后的第一条记录）
-        if (sortedVoices.length > 0) {
-          setLastVoiceDate(sortedVoices[0].createDate);
-        }
-      }
+      // 从IndexedDB加载语音历史
+      await loadIndexedDBData();
 
       // 计算账户年龄
       if (user.createDate) {
@@ -174,6 +157,40 @@ export default function DashboardPage() {
       });
     } finally {
       setDataLoading(false);
+    }
+  };
+
+  // 从IndexedDB加载语音数据
+  const loadIndexedDBData = async () => {
+    try {
+      const audioStorage = getAudioStorage();
+      const audioList = await audioStorage.listAllAudio();
+
+      // 将音频列表转换为所需格式并按创建日期降序排序
+      const formattedAudioList = audioList.map(item => ({
+        id: item.id,
+        text: item.metadata.text || '',
+        voice: item.metadata.voice || '',
+        speed: item.metadata.speed || 1,
+        usedBalance: item.metadata.usedBalance || 0,
+        createdAt: item.metadata.createdAt || new Date(),
+      })).sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      setVoiceHistory(formattedAudioList);
+
+      // 设置最后语音生成日期
+      if (formattedAudioList.length > 0) {
+        setLastVoiceDate(formattedAudioList[0].createdAt.toString());
+      }
+    } catch (error) {
+      console.error('从IndexedDB加载数据失败:', error);
+      toast({
+        variant: 'destructive',
+        title: t('dashboard.dataLoadFailed'),
+        description: t('dashboard.dataLoadFailedDesc'),
+      });
     }
   };
 
@@ -208,46 +225,96 @@ export default function DashboardPage() {
   };
 
   // 播放音频
-  const playAudio = (url: string) => {
-    if (currentAudio === url && isPlaying) {
-      // 暂停当前播放
-      const audio = document.getElementById('audio-player') as HTMLAudioElement;
-      if (audio) {
-        audio.pause();
-        setIsPlaying(false);
+  const playAudio = async (audioId: string) => {
+    try {
+      if (!audioRef.current) {
+        audioRef.current = document.getElementById('audio-player') as HTMLAudioElement;
       }
-    } else {
-      // 播放新的音频
-      setCurrentAudio(url);
-      setIsPlaying(true);
-      const audio = document.getElementById('audio-player') as HTMLAudioElement;
-      if (audio) {
-        audio.src = url;
-        audio.play().catch(error => {
-          console.error('播放失败:', error);
-          toast({
-            variant: 'destructive',
-            title: t('dashboard.playbackError'),
-            description: t('dashboard.playbackErrorDesc'),
-          });
-        });
+
+      if (currentAudio === audioId && isPlaying) {
+        // 暂停当前播放
+        if (audioRef.current) {
+          audioRef.current.pause();
+          setIsPlaying(false);
+        }
+        return;
       }
+
+      // 获取音频数据
+      const audioStorage = getAudioStorage();
+      const audioData = await audioStorage.getAudio(audioId);
+
+      if (!audioData) {
+        throw new Error('音频数据不存在');
+      }
+
+      // 创建音频URL
+      const audioUrl = audioStorage.createAudioUrl(audioData.blob);
+      setCurrentAudio(audioId);
+
+      // 播放音频
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.load();
+
+        try {
+          await audioRef.current.play();
+          setIsPlaying(true);
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') {
+            console.log('播放被中断，可能是由于新的播放请求');
+          } else {
+            console.error('播放失败:', error);
+            toast({
+              variant: 'destructive',
+              title: t('dashboard.playbackError'),
+              description: t('dashboard.playbackErrorDesc'),
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('播放音频失败:', error);
+      toast({
+        variant: 'destructive',
+        title: t('dashboard.playbackError'),
+        description: t('dashboard.playbackErrorDesc'),
+      });
     }
   };
 
   // 下载音频
-  const downloadAudio = (url: string) => {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `voice_${new Date().getTime()}.mp3`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const downloadAudio = async (audioId: string) => {
+    try {
+      // 获取音频数据
+      const audioStorage = getAudioStorage();
+      const audioData = await audioStorage.getAudio(audioId);
 
-    toast({
-      title: t('dashboard.downloadStarted'),
-      description: t('dashboard.downloadStartedDesc'),
-    });
+      if (!audioData) {
+        throw new Error('音频数据不存在');
+      }
+
+      // 创建下载链接
+      const audioUrl = audioStorage.createAudioUrl(audioData.blob);
+      const a = document.createElement('a');
+      a.href = audioUrl;
+      a.download = `voice_${new Date().getTime()}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      toast({
+        title: t('dashboard.downloadStarted'),
+        description: t('dashboard.downloadStartedDesc'),
+      });
+    } catch (error) {
+      console.error('下载音频失败:', error);
+      toast({
+        variant: 'destructive',
+        title: t('dashboard.playbackError'),
+        description: t('dashboard.playbackErrorDesc'),
+      });
+    }
   };
 
   // 处理删除按钮点击
@@ -255,43 +322,23 @@ export default function DashboardPage() {
     setVoiceToDelete(voiceId);
     setDeleteDialogOpen(true);
   };
-  // TODO 添加提示 xx小时就会删除文件
+
   // 删除语音记录
   const deleteVoice = async () => {
-    if (!voiceToDelete || !user?.id) return;
+    if (!voiceToDelete) return;
 
     try {
-      const response = await fetch('/api/voice/delete', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          voiceId: voiceToDelete,
-          userId: user.id
-        })
+      // 从IndexedDB删除音频
+      const audioStorage = getAudioStorage();
+      await audioStorage.deleteAudio(voiceToDelete);
+
+      // 重新加载数据
+      await loadIndexedDBData();
+
+      toast({
+        title: t('dashboard.deleteSuccess'),
+        description: t('dashboard.deleteSuccessDesc'),
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // 更新语音历史
-        setVoiceHistory(data.voices);
-
-        // 更新最后语音生成日期
-        if (data.voices.length > 0) {
-          setLastVoiceDate(data.voices[0].createDate);
-        } else {
-          setLastVoiceDate('-');
-        }
-
-        toast({
-          title: t('dashboard.deleteSuccess'),
-          description: t('dashboard.deleteSuccessDesc'),
-        });
-      } else {
-        throw new Error(data.error || 'Failed to delete voice record');
-      }
     } catch (error) {
       console.error('删除语音记录失败:', error);
       toast({
@@ -341,10 +388,12 @@ export default function DashboardPage() {
     }
   }, [user]);
 
-  // Redirect if not logged in
+  // 处理登录状态和初始加载
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/');
+    } else if (status === 'authenticated') {
+      setLoading(false);
     }
   }, [status, router]);
 
@@ -352,6 +401,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const audio = document.getElementById('audio-player') as HTMLAudioElement;
     if (audio) {
+      audioRef.current = audio;
       const handleEnded = () => {
         setIsPlaying(false);
       };
@@ -361,6 +411,13 @@ export default function DashboardPage() {
       };
     }
   }, []);
+
+  // 在页面加载时加载IndexedDB数据
+  useEffect(() => {
+    if (user?.id && !loading) {
+      loadIndexedDBData();
+    }
+  }, [user, loading]);
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-[60vh]">{t('dashboard.loading')}</div>;
@@ -508,7 +565,7 @@ export default function DashboardPage() {
               {voiceHistory.length > 0 ? (
                 <div className="space-y-4">
                   {voiceHistory.map((voice) => (
-                    <div key={voice._id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg">
+                    <div key={voice.id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg">
                       <div className="mb-2 md:mb-0 md:mr-4 flex-grow">
                         {voice.text ? (
                           <div className="mb-2 p-2 bg-muted/50 rounded-md">
@@ -517,24 +574,20 @@ export default function DashboardPage() {
                         ) : (
                           <p className="font-medium text-muted-foreground italic">{t('dashboard.noTextAvailable')}</p>
                         )}
-                        <div className="flex items-center mt-1">
-                          <Badge variant="outline" className="mr-2">{(voice.cost).toFixed(2)} {t('dashboard.points')}</Badge>
-                          <span className="text-xs text-muted-foreground">{formatDate(voice.createDate)}</span>
-                        </div>
                       </div>
                       <div className="flex space-x-2">
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => playAudio(voice.voiceUrl)}
+                          onClick={() => playAudio(voice.id)}
                         >
                           <Play className="h-4 w-4 mr-1" />
-                          {currentAudio === voice.voiceUrl && isPlaying ? t('dashboard.pause') : t('dashboard.play')}
+                          {currentAudio === voice.id && isPlaying ? t('dashboard.pause') : t('dashboard.play')}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => downloadAudio(voice.voiceUrl)}
+                          onClick={() => downloadAudio(voice.id)}
                         >
                           <Download className="h-4 w-4 mr-1" />
                           {t('dashboard.download')}
@@ -543,7 +596,7 @@ export default function DashboardPage() {
                           size="sm"
                           variant="outline"
                           className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                          onClick={() => handleDeleteClick(voice._id)}
+                          onClick={() => handleDeleteClick(voice.id)}
                         >
                           <Trash2 className="h-4 w-4 mr-1" />
                           {t('dashboard.delete')}
