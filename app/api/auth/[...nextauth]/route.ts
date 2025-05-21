@@ -5,7 +5,7 @@ import { connectToDB } from "@/mongodb/database"
 import User from "@/models/User"
 import { getCurrentTime } from '@/lib/utils'
 
-const authOptions: AuthOptions = {
+export const authOptions: AuthOptions = {
     providers: [
         GithubProvider({
             clientId: process.env.GITHUB_CLIENT_ID || "",
@@ -24,7 +24,9 @@ const authOptions: AuthOptions = {
     ],
     debug: process.env.NODE_ENV === "development",
     session: {
-        strategy: "jwt"
+        strategy: "jwt",
+        maxAge: 7 * 24 * 60 * 60, // 30 天
+
     },
     pages: {
         signIn: "/auth/login",
@@ -71,7 +73,9 @@ const authOptions: AuthOptions = {
             session.user = { ...session.user, ...sessionUser._doc }
             return session
         },
-    }
+    },
+    secret: process.env.NEXTAUTH_SECRET
+
 }
 
 const handler = NextAuth(authOptions)

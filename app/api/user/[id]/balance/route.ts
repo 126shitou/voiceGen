@@ -1,6 +1,8 @@
-import type { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import User from '@/models/User'
 import { connectToDB } from '@/mongodb/database';
+import { getServerSession } from "next-auth"
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 type IParams = {
     params: {
@@ -11,6 +13,12 @@ type IParams = {
 
 // 更新用户余额
 export const POST = async (req: NextRequest, { params }: IParams) => {
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+        return NextResponse.json({ message: "You must be logged in." }, { status: 401 })
+    }
+
     try {
         await connectToDB();
 
@@ -29,7 +37,7 @@ export const POST = async (req: NextRequest, { params }: IParams) => {
         // 更新用户余额
         let newBalance = (user.balance + Number(amount)).toFixed(2)
         user.balance = newBalance
-        
+
         // 确保余额不为负数
         if (user.balance < 0) {
             user.balance = 0;

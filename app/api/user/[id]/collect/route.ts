@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from '@/mongodb/database';
 import User from "@/models/User";
+import { getServerSession } from "next-auth"
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(
     request: NextRequest,
     { params }: { params: { id: string } }
 ) {
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+        return NextResponse.json({ message: "You must be logged in." }, { status: 401 })
+    }
+
+
     try {
         // Connect to the database
         await connectToDB();

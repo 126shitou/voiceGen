@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentTime } from '@/lib/utils';
 import User from '@/models/User';
+import { getServerSession } from "next-auth"
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(request: NextRequest) {
+
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+        return NextResponse.json({ message: "You must be logged in." }, { status: 401 })
+    }
+
     try {
         const body = await request.json();
         const { userId, text, voice, speed } = body;
@@ -144,20 +153,20 @@ export async function POST(request: NextRequest) {
         // 构建完整的 URL
         const origin = request.headers.get('origin') || 'http://localhost:3000';
         const voiceApiUrl = new URL('/api/voice/add', origin).toString();
-        
+
         const voiceResponse = await fetch(voiceApiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: userId,
-            voiceUrl: completed.output,
-            text: text,
-            cost: usedBalance,
-            balance: newBalance,
-            createDate: getCurrentTime()
-          })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: userId,
+                voiceUrl: completed.output,
+                text: text,
+                cost: usedBalance,
+                balance: newBalance,
+                createDate: getCurrentTime()
+            })
         });
 
         if (!voiceResponse.ok) {

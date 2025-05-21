@@ -1,4 +1,7 @@
 import Stripe from 'stripe'
+import { getServerSession } from "next-auth"
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { NextRequest, NextResponse } from 'next/server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "")
 
@@ -8,6 +11,12 @@ const PRICE_ID_LIST = [
 ]
 
 export const POST = async (req, res) => {
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+        return NextResponse.json({ message: "You must be logged in." }, { status: 401 })
+    }
+
     if (req.method === "POST") {
         try {
             const { userId, type } = await req.json()

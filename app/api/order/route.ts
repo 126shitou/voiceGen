@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from "next-auth"
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 import Stripe from 'stripe';
 import { connectToDB } from '@/mongodb/database';
@@ -17,7 +19,12 @@ const PRODUCT_TOKEN_LIST = [
 ]
 
 export async function POST(req: NextRequest) {
+    const session = await getServerSession(authOptions)
 
+    if (!session) {
+        return NextResponse.json({ message: "You must be logged in." }, { status: 401 })
+    }
+    
     try {
         const rawBody = await req.text()
         const signature = req.headers.get("stripe-signature") || ""
