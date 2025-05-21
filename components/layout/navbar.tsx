@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Mic, ChevronRight } from 'lucide-react';
+import { Mic } from 'lucide-react';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useLanguage } from '@/lib/language-context';
 import { MobileMenu } from './mobile-menu';
 import { UserMenu } from './user-menu';
-import { useSession, signIn } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {

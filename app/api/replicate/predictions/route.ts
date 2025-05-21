@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Token ${token}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 version: "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13",
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
         for (let i = 0; i < maxAttempts; i++) {
             const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${prediction.id}`, {
                 headers: {
-                    'Authorization': `Token ${token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
