@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
 
         // 更新用户余额
         await User.findOneAndUpdate(
-            { id: userId },
+            { _id: userId },
             { $set: { balance: parseFloat(newBalance) } }
         );
 
