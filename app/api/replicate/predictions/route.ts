@@ -190,53 +190,9 @@ export async function POST(request: NextRequest) {
                 'X-Current-Balance': newBalance
             }
         });
+
     } catch (error) {
         console.error('Error processing prediction:', error);
-        return NextResponse.json(
-            { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
-            { status: 500 }
-        );
-    }
-}
-
-export async function GET(request: NextRequest) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
-        const token = process.env.NEXT_PUBLIC_TK;
-
-        if (!token) {
-            return NextResponse.json(
-                { error: 'API token not configured' },
-                { status: 500 }
-            );
-        }
-
-        if (!id) {
-            return NextResponse.json(
-                { error: 'Prediction ID is required' },
-                { status: 400 }
-            );
-        }
-
-        const response = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
-            headers: {
-                'Authorization': `Token ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            return NextResponse.json(
-                { error: `Failed to get prediction: ${response.status}` },
-                { status: response.status }
-            );
-        }
-
-        const prediction = await response.json();
-        return NextResponse.json(prediction);
-    } catch (error) {
-        console.error('Error getting prediction:', error);
         return NextResponse.json(
             { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
