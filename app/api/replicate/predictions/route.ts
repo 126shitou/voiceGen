@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         const requiredBalance = textLength * 0.1;
 
         // 获取用户信息和余额
-        const dbUser = await User.findOne({ id: userId });
+        const dbUser = await User.findById(userId);
         if (!dbUser) {
             return NextResponse.json(
                 { error: 'User not found' },
