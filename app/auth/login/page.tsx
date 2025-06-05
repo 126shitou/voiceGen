@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Github, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/language-context';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 // Client-side only component to prevent hydration mismatch
 function AnimatedCircles() {
@@ -62,6 +63,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGithubLogin = async () => {
+    sendGTMEvent({ event: 'VC_LOGIN', provider: 'github' })
     setIsLoading(true);
     try {
       await signIn('github', { callbackUrl: '/' });
@@ -78,7 +80,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-
+    sendGTMEvent({ event: 'VC_LOGIN', provider: 'google' })
     setIsLoading(true);
     try {
       await signIn('google', { callbackUrl: '/' });

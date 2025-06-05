@@ -5,6 +5,7 @@ import { Providers } from '@/components/providers';
 import { Toaster } from '@/components/ui/toaster';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
+import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google'
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,7 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
+
     <html lang="en" suppressHydrationWarning>
+      <GoogleTagManager gtmId="GTM-WJFFKXK7" />
+
       <body className={inter.className}>
         <Providers>
           <div className="flex min-h-screen flex-col bg-background">
@@ -30,6 +34,8 @@ export default function RootLayout({
           <Toaster />
         </Providers>
       </body>
+      <GoogleAnalytics gaId="G-V62CZCQHLL" />
+
     </html>
   );
 }

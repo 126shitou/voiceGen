@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { useSession, signIn } from 'next-auth/react';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 // Define a type for the background element styles
 type BackgroundElementStyle = {
@@ -67,12 +68,12 @@ export function HeroSection() {
 
       <div className="container relative z-10 mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80 mb-6">
-          {t('hero.title')} 
+          {t('hero.title')}
         </h1>
         <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-8">
           {t('hero.subtitle')}
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div onClick={() => sendGTMEvent({ event: 'VC_START', user: user?.email })} className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {user ? (
             <Link href="/text-to-speech">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-white">

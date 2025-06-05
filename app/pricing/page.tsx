@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Crown, Sparkles } from 'lucide-react';
 import getStripe from '@/lib/stripe';
 import { useRouter } from 'next/navigation';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 export default function PricingPage() {
   const { t, language } = useLanguage();
@@ -34,6 +35,7 @@ export default function PricingPage() {
   type PlanEnum = 'free' | 'basic' | 'pro'
 
   const payForPlan = async (plan: PlanEnum) => {
+    sendGTMEvent({ event: 'VC_SUBSCRIBE', user: session?.user.email, type: plan, billing_cycle: 'monthly' })
     // 检查用户是否已登录
     if (status === 'unauthenticated') {
       // 如果未登录，重定向到登录页面
@@ -135,8 +137,8 @@ export default function PricingPage() {
             <Button onClick={() => payForPlan('free')}
               className={`w-full transition-all ${selectedPlan === 'free' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
             >
-              {status === 'unauthenticated' 
-                ? t('common.signInRequired') 
+              {status === 'unauthenticated'
+                ? t('common.signInRequired')
                 : (selectedPlan === 'free' ? t('pricing.selected') : t('pricing.free.cta'))}
             </Button>
           </CardFooter>
@@ -177,8 +179,8 @@ export default function PricingPage() {
               className={`w-full transition-all ${selectedPlan === 'basic' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
               disabled={status === 'unauthenticated'}
             >
-              {status === 'unauthenticated' 
-                ? t('common.signInRequired') 
+              {status === 'unauthenticated'
+                ? t('common.signInRequired')
                 : (selectedPlan === 'basic' ? t('pricing.selected') : t('pricing.basic.cta'))}
             </Button>
           </CardFooter>
@@ -224,8 +226,8 @@ export default function PricingPage() {
               className={`w-full transition-all bg-primary hover:bg-primary/90 text-primary-foreground ${selectedPlan === 'pro' ? "shadow-lg" : ""}`}
               disabled={status === 'unauthenticated'}
             >
-              {status === 'unauthenticated' 
-                ? t('common.signInRequired') 
+              {status === 'unauthenticated'
+                ? t('common.signInRequired')
                 : (selectedPlan === 'pro' ? t('pricing.selected') : t('pricing.pro.cta'))}
             </Button>
           </CardFooter>

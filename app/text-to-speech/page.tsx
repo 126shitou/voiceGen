@@ -42,6 +42,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { getAudioStorage } from '@/lib/indexedDB';
+import { sendGTMEvent } from '@next/third-parties/google';
 // Voice models
 const voices = [
   // English - British Male
@@ -151,6 +152,12 @@ export default function TextToSpeechPage() {
   };
 
   const generateSpeech = async () => {
+    sendGTMEvent({
+      event: 'VC_GEN', user: session?.user.email, vioceParams: {
+        voice,
+        speed
+      }
+    })
     // 检查用户是否登录
     if (!session?.user?.id) {
       toast({

@@ -5,6 +5,8 @@ import { useLanguage } from '@/lib/language-context';
 import { useSession, signIn } from 'next-auth/react';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 export function CTASection() {
   const { t } = useLanguage();
@@ -33,7 +35,7 @@ export function CTASection() {
             {t('cta.subtitle')}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div onClick={() => sendGTMEvent({ event: 'VC_START', user: session?.user.email })} className="flex flex-col sm:flex-row items-center justify-center gap-4" >
             {session?.user ? (
               <Link href="/text-to-speech">
                 <Button size="lg" className="bg-white text-primary hover:bg-white/90">
@@ -45,7 +47,7 @@ export function CTASection() {
               <Button
                 size="lg"
                 className="bg-white text-primary hover:bg-white/90"
-                onClick={() => signIn('github')}
+                onClick={() => useRouter().push('/login')}
               >
                 <Sparkles className="mr-2 h-4 w-4" />
                 {t('cta.button')}

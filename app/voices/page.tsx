@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Play, Headphones, Star, Lock } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { sendGTMEvent } from '@next/third-parties/google';
 
 // Voice models data
 const allVoices = [
@@ -19,19 +20,19 @@ const allVoices = [
   { id: 'bf_emma', nameKey: 'voice.bf_emma', gender: 'female', premium: false, sample: '#', avatar: 'emma', rating: 4.7, language: 'en' },
   { id: 'bf_alice', nameKey: 'voice.bf_alice', gender: 'female', premium: false, sample: '#', avatar: 'alice', rating: 4.8, language: 'en' },
   { id: 'bf_lily', nameKey: 'voice.bf_lily', gender: 'female', premium: true, sample: '#', avatar: 'lily', rating: 4.9, language: 'en' },
-  // // Japanese - Male
-  // { id: 'jm_kumo', nameKey: 'voice.jm_kumo', gender: 'male', premium: false, sample: '#', avatar: 'kumo', rating: 4.7, language: 'ja' },
-  // // Japanese - Female
-  // { id: 'jf_tebukuro', nameKey: 'voice.jf_tebukuro', gender: 'female', premium: false, sample: '#', avatar: 'tebukuro', rating: 4.8, language: 'ja' },
-  // { id: 'jf_alpha', nameKey: 'voice.jf_alpha', gender: 'female', premium: true, sample: '#', avatar: 'alpha', rating: 4.9, language: 'ja' },
-  // { id: 'jf_gongitsune', nameKey: 'voice.jf_gongitsune', gender: 'female', premium: true, sample: '#', avatar: 'gongitsune', rating: 4.8, language: 'ja' },
-  // // Chinese - Male
-  // { id: 'zm_yunxia', nameKey: 'voice.zm_yunxia', gender: 'male', premium: false, sample: '#', avatar: 'yunxia', rating: 4.8, language: 'zh' },
-  // { id: 'zm_yunxi', nameKey: 'voice.zm_yunxi', gender: 'male', premium: true, sample: '#', avatar: 'yunxi', rating: 4.9, language: 'zh' },
-  // { id: 'zm_yunyang', nameKey: 'voice.zm_yunyang', gender: 'male', premium: true, sample: '#', avatar: 'yunyang', rating: 4.8, language: 'zh' },
-  // // Chinese - Female
-  // { id: 'zf_xiaobei', nameKey: 'voice.zf_xiaobei', gender: 'female', premium: false, sample: '#', avatar: 'xiaobei', rating: 4.7, language: 'zh' },
-  // { id: 'zf_xiaoni', nameKey: 'voice.zf_xiaoni', gender: 'female', premium: true, sample: '#', avatar: 'xiaoni', rating: 4.9, language: 'zh' },
+  // Japanese - Male
+  { id: 'jm_kumo', nameKey: 'voice.jm_kumo', gender: 'male', premium: false, sample: '#', avatar: 'kumo', rating: 4.7, language: 'ja' },
+  // Japanese - Female
+  { id: 'jf_tebukuro', nameKey: 'voice.jf_tebukuro', gender: 'female', premium: false, sample: '#', avatar: 'tebukuro', rating: 4.8, language: 'ja' },
+  { id: 'jf_alpha', nameKey: 'voice.jf_alpha', gender: 'female', premium: true, sample: '#', avatar: 'alpha', rating: 4.9, language: 'ja' },
+  { id: 'jf_gongitsune', nameKey: 'voice.jf_gongitsune', gender: 'female', premium: true, sample: '#', avatar: 'gongitsune', rating: 4.8, language: 'ja' },
+  // Chinese - Male
+  { id: 'zm_yunxia', nameKey: 'voice.zm_yunxia', gender: 'male', premium: false, sample: '#', avatar: 'yunxia', rating: 4.8, language: 'zh' },
+  { id: 'zm_yunxi', nameKey: 'voice.zm_yunxi', gender: 'male', premium: true, sample: '#', avatar: 'yunxi', rating: 4.9, language: 'zh' },
+  { id: 'zm_yunyang', nameKey: 'voice.zm_yunyang', gender: 'male', premium: true, sample: '#', avatar: 'yunyang', rating: 4.8, language: 'zh' },
+  // Chinese - Female
+  { id: 'zf_xiaobei', nameKey: 'voice.zf_xiaobei', gender: 'female', premium: false, sample: '#', avatar: 'xiaobei', rating: 4.7, language: 'zh' },
+  { id: 'zf_xiaoni', nameKey: 'voice.zf_xiaoni', gender: 'female', premium: true, sample: '#', avatar: 'xiaoni', rating: 4.9, language: 'zh' },
   // French - Female
   { id: 'ff_siwis', nameKey: 'voice.ff_siwis', gender: 'female', premium: true, sample: '#', avatar: 'siwis', rating: 4.8, language: 'fr' },
 ];
@@ -72,14 +73,14 @@ export default function VoicesPage() {
     }
   }, [languageFilter]);
 
-  const filteredVoices = activeTab === 'all' 
-    ? voices 
+  const filteredVoices = activeTab === 'all'
+    ? voices
     : voices.filter(voice => voice.gender === activeTab);
 
   const playDemo = (voiceId: string) => {
     // In a real app, this would play a sample of the voice
     setPlayingVoice(voiceId);
-    
+
     // Simulate audio playback end after 3 seconds
     setTimeout(() => {
       setPlayingVoice(null);
@@ -89,7 +90,14 @@ export default function VoicesPage() {
   const getAvatarUrl = (avatar: string) => {
     return `https://api.dicebear.com/7.x/personas/svg?seed=${avatar}`;
   };
-
+  const tabClick = (v: any) => {
+    sendGTMEvent({ event: 'VC_MODEL', user: session?.user.email, gender: v, language: languageFilter })
+    setActiveTab(v)
+  }
+  const languageChange = (v: any) => {
+    sendGTMEvent({ event: 'VC_MODEL', user: session?.user.email, gender: activeTab, language: v })
+    setLanguageFilter(v)
+  }
   return (
     <div className="py-16 container mx-auto px-4">
       <div className="text-center max-w-3xl mx-auto mb-12">
@@ -98,14 +106,14 @@ export default function VoicesPage() {
           {t('voices.pageDescription')}
         </p>
       </div>
-      
+
       {/* Voice filters */}
       <div className="mb-8 flex flex-col gap-4 justify-center">
         {/* Language filter */}
         <Tabs
           defaultValue={language}
           value={languageFilter}
-          onValueChange={setLanguageFilter}
+          onValueChange={languageChange}
           className="w-full max-w-md mx-auto"
         >
           <TabsList className="grid grid-cols-5 w-full">
@@ -116,12 +124,12 @@ export default function VoicesPage() {
             <TabsTrigger value="fr">{t('voices.french')}</TabsTrigger>
           </TabsList>
         </Tabs>
-        
+
         {/* Gender filter */}
         <Tabs
           defaultValue="all"
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={v => tabClick(v)}
           className="w-full max-w-md mx-auto"
         >
           <TabsList className="grid grid-cols-3 w-full">
@@ -131,7 +139,7 @@ export default function VoicesPage() {
           </TabsList>
         </Tabs>
       </div>
-      
+
       {/* Voice grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredVoices.map((voice) => (
@@ -142,7 +150,7 @@ export default function VoicesPage() {
                   <AvatarImage src={getAvatarUrl(voice.avatar)} alt={t(voice.nameKey)} />
                   <AvatarFallback>{t(voice.nameKey).charAt(0)}</AvatarFallback>
                 </Avatar>
-                
+
                 {voice.premium && (
                   <div className="bg-primary/10 text-primary text-xs font-medium rounded-full px-2 py-1 flex items-center">
                     <Star className="h-3 w-3 mr-1" fill="currentColor" />
@@ -150,7 +158,7 @@ export default function VoicesPage() {
                   </div>
                 )}
               </div>
-              
+
               <CardTitle className="text-xl mt-3">{t(voice.nameKey)}</CardTitle>
               <CardDescription className="flex items-center">
                 <span className="flex items-center">
@@ -161,14 +169,14 @@ export default function VoicesPage() {
                 <span>{voice.gender === 'male' ? t('voices.male') : t('voices.female')}</span>
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent>
               <div className="flex items-center text-sm text-muted-foreground">
                 <Headphones className="h-4 w-4 mr-1" />
                 {t('voices.demoAvailable')}
               </div>
             </CardContent>
-            
+
             <CardFooter>
               {voice.premium && !user ? (
                 <Button variant="outline" className="w-full">
@@ -176,7 +184,7 @@ export default function VoicesPage() {
                   {t('voices.unlockPremium')}
                 </Button>
               ) : (
-                <Button 
+                <Button
                   className="w-full"
                   variant="secondary"
                   onClick={() => playDemo(voice.id)}
