@@ -35,7 +35,7 @@ export function CTASection() {
             {t('cta.subtitle')}
           </p>
 
-          <div onClick={() => sendGTMEvent({ event: 'VC_START', user: session?.user.email })} className="flex flex-col sm:flex-row items-center justify-center gap-4" >
+          <div onClick={() => sendGTMEvent({ event: 'VG_START', user: session?.user.email })} className="flex flex-col sm:flex-row items-center justify-center gap-4" >
             {session?.user ? (
               <Link href="/text-to-speech">
                 <Button size="lg" className="bg-white text-primary hover:bg-white/90">

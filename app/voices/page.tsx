@@ -91,11 +91,11 @@ export default function VoicesPage() {
     return `https://api.dicebear.com/7.x/personas/svg?seed=${avatar}`;
   };
   const tabClick = (v: any) => {
-    sendGTMEvent({ event: 'VC_MODEL', user: session?.user.email, gender: v, language: languageFilter })
+    sendGTMEvent({ event: 'VG_MODEL', user: session?.user.email, gender: v, language: languageFilter })
     setActiveTab(v)
   }
   const languageChange = (v: any) => {
-    sendGTMEvent({ event: 'VC_MODEL', user: session?.user.email, gender: activeTab, language: v })
+    sendGTMEvent({ event: 'VG_MODEL', user: session?.user.email, gender: activeTab, language: v })
     setLanguageFilter(v)
   }
   return (

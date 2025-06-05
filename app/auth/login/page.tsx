@@ -63,7 +63,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGithubLogin = async () => {
-    sendGTMEvent({ event: 'VC_LOGIN', provider: 'github' })
+    sendGTMEvent({ event: 'VG_LOGIN', provider: 'github' })
     setIsLoading(true);
     try {
       await signIn('github', { callbackUrl: '/' });
@@ -80,7 +80,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    sendGTMEvent({ event: 'VC_LOGIN', provider: 'google' })
+    sendGTMEvent({ event: 'VG_LOGIN', provider: 'google' })
     setIsLoading(true);
     try {
       await signIn('google', { callbackUrl: '/' });
