@@ -153,7 +153,7 @@ export default function TextToSpeechPage() {
 
   const generateSpeech = async () => {
     sendGTMEvent({
-      event: 'VG_GEN', user: session?.user.email, vioceParams: {
+      event: 'GENERATE', user: session?.user.email, vioceParams: {
         voice,
         speed
       }

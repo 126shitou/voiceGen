@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
 
     <html lang="en" suppressHydrationWarning>
-      <GoogleTagManager gtmId="GTM-WJFFKXK7" />
+      <GoogleTagManager gtmId="GTM-TQ7GQSSN" />
 
       <body className={inter.className}>
         <Providers>
@@ -34,7 +34,7 @@ export default function RootLayout({
           <Toaster />
         </Providers>
       </body>
-      <GoogleAnalytics gaId="G-V62CZCQHLL" />
+      <GoogleAnalytics gaId="G-06PH0GVPKW" />
 
     </html>
   );

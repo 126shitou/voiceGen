@@ -35,7 +35,7 @@ export default function PricingPage() {
   type PlanEnum = 'free' | 'basic' | 'pro'
 
   const payForPlan = async (plan: PlanEnum) => {
-    sendGTMEvent({ event: 'VG_SUBSCRIBE', user: session?.user.email, type: plan, billing_cycle: 'monthly' })
+    sendGTMEvent({ event: 'SUBSCRIBE', user: session?.user.email, type: plan, billing_cycle: 'monthly' })
     // 检查用户是否已登录
     if (status === 'unauthenticated') {
       // 如果未登录，重定向到登录页面

@@ -73,7 +73,7 @@ export function HeroSection() {
         <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-8">
           {t('hero.subtitle')}
         </p>
-        <div onClick={() => sendGTMEvent({ event: 'VG_START', user: user?.email })} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div onClick={() => sendGTMEvent({ event: 'START', user: user?.email })} className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {user ? (
             <Link href="/text-to-speech">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-white">
